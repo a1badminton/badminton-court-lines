@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Badminton Court Lines Trainer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #f6f8fa; }
+    header { padding: 1em; background: #1976d2; color: white; font-size: 1.5em; text-align: center;}
+    #app { max-width: 700px; margin: 2em auto; padding: 2em; background: white; border-radius: 12px; box-shadow: 0 0 12px #ccc;}
+    svg { width: 100%; height: auto; margin-bottom: 1em;}
+    .controls { margin-bottom: 1em;}
+    .feedback { margin-top: 1em; font-weight: bold;}
+    .highlight { stroke: #ff9800 !important; stroke-width: 8 !important;}
+    button { margin: 0 0.5em 0.5em 0; padding: 0.5em 1em; font-size: 1em; border-radius: 5px; border: none; background: #1976d2; color: white; cursor: pointer;}
+    button.secondary { background: #888; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header>Badminton Court Lines Trainer</header>
+  <div id="app">
+    <div class="controls">
+      <button id="teachBtn">Teach Mode</button>
+      <button id="quizBtn" class="secondary">Quiz Mode</button>
+    </div>
+    <div id="court"></div>
+    <div id="info"></div>
+    <div id="quiz" class="hidden">
+      <div id="quizQuestion"></div>
+      <div id="feedback" class="feedback"></div>
+    </div>
+  </div>
+<script>
+// Court Lines Data
+const lines = [
+  { id: 'baseline-top', name: 'Top Baseline', description: 'The back boundary line on the top side.' },
+  { id: 'baseline-bottom', name: 'Bottom Baseline', description: 'The back boundary line on the bottom side.' },
+  { id: 'sideline-left-singles', name: 'Left Singles Sideline', description: 'Left boundary for singles play.' },
+  { id: 'sideline-right-singles', name: 'Right Singles Sideline', description: 'Right boundary for singles play.' },
+  { id: 'sideline-left-doubles', name: 'Left Doubles Sideline', description: 'Left boundary for doubles play.' },
+  { id: 'sideline-right-doubles', name: 'Right Doubles Sideline', description: 'Right boundary for doubles play.' },
+  { id: 'center-line', name: 'Center Line', description: 'Divides the service courts.' },
+  { id: 'short-service-line', name: 'Short Service Line', description: 'Service must pass this line.' },
+  { id: 'long-service-line-singles', name: 'Long Service Line (Singles)', description: 'Far boundary for singles service.' },
+  { id: 'long-service-line-doubles', name: 'Long Service Line (Doubles)', description: 'Far boundary for doubles service.' }
+];
+
+// Areas for service quiz (simplified)
+const serviceCourts = [
+  { id: 'left-service-court', name: 'Left Service Court', description: 'Area to the left of the center line between the short and long service lines.' },
+  { id: 'right-service-court', name: 'Right Service Court', description: 'Area to the right of the center line between the short and long service lines.' }
+];
+
+// SVG Court Generator (simplified, not to scale)
+function renderCourt(highlightId=null) {
+  return `<svg viewBox="0 0 400 800">
+    <!-- Baselines -->
+    <line id="baseline-top" x1="20" y1="40" x2="380" y2="40" stroke="#222" stroke-width="4"/>
+    <line id="baseline-bottom" x1="20" y1="760" x2="380" y2="760" stroke="#222" stroke-width="4"/>
+    <!-- Sidelines Doubles -->
+    <line id="sideline-left-doubles" x1="20" y1="40" x2="20" y2="760" stroke="#222" stroke-width="4"/>
+    <line id="sideline-right-doubles" x1="380" y1="40" x2="380" y2="760" stroke="#222" stroke-width="4"/>
+    <!-- Sidelines Singles -->
+    <line id="sideline-left-singles" x1="60" y1="40" x2="60" y2="760" stroke="#1976d2" stroke-width="2"/>
+    <line id="sideline-right-singles" x1="340" y1="40" x2="340" y2="760" stroke="#1976d2" stroke-width="2"/>
+    <!-- Center Line -->
+    <line id="center-line" x1="200" y1="220" x2="200" y2="580" stroke="#1976d2" stroke-width="2"/>
+    <!-- Short Service Line -->
+    <line id="short-service-line" x1="60" y1="220" x2="340" y2="220" stroke="#1976d2" stroke-width="2"/>
+    <!-- Long Service Line Singles -->
+    <line id="long-service-line-singles" x1="60" y1="580" x2="340" y2="580" stroke="#1976d2" stroke-width="2"/>
+    <!-- Long Service Line Doubles -->
+    <line id="long-service-line-doubles" x1="20" y1="620" x2="380" y2="620" stroke="#1976d2" stroke-width="2"/>
+    <!-- Service Courts (for quiz) -->
+    <rect id="left-service-court" x="60" y="220" width="140" height="360" fill="#e3f2fd" opacity="0.4"/>
+    <rect id="right-service-court" x="200" y="220" width="140" height="360" fill="#e3f2fd" opacity="0.4"/>
+    <!-- Highlight -->
+    ${highlightId ? `<g><use href="#${highlightId}" class="highlight"/></g>` : ''}
+  </svg>`;
+}
+
+// State
+let mode = 'teach'; // or 'quiz'
+let currentQuiz = null;
+let score = 0;
+let total = 0;
+
+// DOM Elements
+const courtDiv = document.getElementById('court');
+const infoDiv = document.getElementById('info');
+const quizDiv = document.getElementById('quiz');
+const quizQuestionDiv = document.getElementById('quizQuestion');
+const feedbackDiv = document.getElementById('feedback');
+const teachBtn = document.getElementById('teachBtn');
+const quizBtn = document.getElementById('quizBtn');
+
+function showTeachMode() {
+  mode = 'teach';
+  quizDiv.classList.add('hidden');
+  courtDiv.innerHTML = renderCourt();
+  infoDiv.innerHTML = `<p>Tap a line or court area to learn its name and purpose.</p>`;
+  // Add event listeners for lines
+  setTimeout(() => {
+    [...lines, ...serviceCourts].forEach(obj => {
+      const el = document.getElementById(obj.id);
+      if (el) {
+        el.style.cursor = 'pointer';
+        el.onclick = () => {
+          courtDiv.innerHTML = renderCourt(obj.id);
+          infoDiv.innerHTML = `<h3>${obj.name}</h3><p>${obj.description}</p>`;
+        }
+      }
+    });
+  }, 50);
+}
+
+function showQuizMode() {
+  mode = 'quiz';
+  infoDiv.innerHTML = '';
+  courtDiv.innerHTML = renderCourt();
+  quizDiv.classList.remove('hidden');
+  score = 0; total = 0;
+  nextQuizQuestion();
+}
+
+function nextQuizQuestion() {
+  total++;
+  feedbackDiv.textContent = '';
+  // Randomly pick line or service court
+  const all = [...lines, ...serviceCourts];
+  currentQuiz = all[Math.floor(Math.random() * all.length)];
+  quizQuestionDiv.innerHTML = `<b>Which line or area is: <span style="color:#1976d2">${currentQuiz.name}</span>?</b><br>
+  <small>Tap on the court to answer.</small>`;
+  courtDiv.innerHTML = renderCourt();
+  setTimeout(() => {
+    [...lines, ...serviceCourts].forEach(obj => {
+      const el = document.getElementById(obj.id);
+      if (el) {
+        el.style.cursor = 'pointer';
+        el.onclick = () => handleQuizAnswer(obj.id);
+      }
+    });
+  }, 50);
+}
+
+function handleQuizAnswer(id) {
+  if (!currentQuiz) return;
+  if (id === currentQuiz.id) {
+    score++;
+    feedbackDiv.textContent = `✅ Correct! (${score}/${total})`;
+    courtDiv.innerHTML = renderCourt(id);
+  } else {
+    feedbackDiv.textContent = `❌ Incorrect. That was ${lines.find(l=>l.id===id)?.name||serviceCourts.find(sc=>sc.id===id)?.name}. (${score}/${total})`;
+    courtDiv.innerHTML = renderCourt(currentQuiz.id);
+  }
+  // Next question after short delay
+  setTimeout(nextQuizQuestion, 1200);
+}
+
+// Event listeners for mode buttons
+teachBtn.onclick = showTeachMode;
+quizBtn.onclick = showQuizMode;
+
+// Start in teach mode
+showTeachMode();
+</script>
+</body>
+</html>
