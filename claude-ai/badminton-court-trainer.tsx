@@ -132,51 +132,97 @@ const BadmintonCourtTrainer = () => {
 
         {/* User Information Modal */}
         {showUserModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0}}>
-            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl" style={{backgroundColor: 'white', zIndex: 9999}}>
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Quiz Information</h2>
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '32px',
+              maxWidth: '400px',
+              width: '90%',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+            }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center' }}>
+                Quiz Information
+              </h2>
               
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    id="userName"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter your full name"
-                    autoFocus
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="userDOB" className="block text-sm font-medium text-gray-700 mb-2">
-                    Date of Birth
-                  </label>
-                  <input
-                    type="date"
-                    id="userDOB"
-                    value={userDOB}
-                    onChange={(e) => setUserDOB(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '16px'
+                  }}
+                  placeholder="Enter your full name"
+                  autoFocus
+                />
               </div>
               
-              <div className="flex gap-4 mt-8">
+              <div style={{ marginBottom: '32px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                  Date of Birth
+                </label>
+                <input
+                  type="date"
+                  value={userDOB}
+                  onChange={(e) => setUserDOB(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '16px'
+                  }}
+                />
+              </div>
+              
+              <div style={{ display: 'flex', gap: '16px' }}>
                 <button
                   onClick={closeQuizModal}
-                  className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                  style={{
+                    flex: 1,
+                    padding: '8px 16px',
+                    backgroundColor: '#6b7280',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '16px'
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={startQuiz}
                   disabled={!userName.trim() || !userDOB}
-                  className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  style={{
+                    flex: 1,
+                    padding: '8px 16px',
+                    backgroundColor: (!userName.trim() || !userDOB) ? '#d1d5db' : '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: (!userName.trim() || !userDOB) ? 'not-allowed' : 'pointer',
+                    fontSize: '16px'
+                  }}
                 >
                   Start Quiz
                 </button>
