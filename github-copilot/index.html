@@ -141,10 +141,7 @@ function createPhaserGame() {
     height: COURT.height_px,
     backgroundColor: '#f6f8fa',
     scene: {
-      create: create,
-      restartCourt: restartCourt,
-      showTeachCourt: showTeachCourt,
-      showQuizCourt: showQuizCourt
+      create: create
     }
   };
   game = new Phaser.Game(config);
@@ -204,6 +201,9 @@ function create() {
       setTimeout(() => nextQuizQuestion(scene), 1200);
     }
   });
+
+  // Start in teach mode on load
+  showTeachCourt();
 }
 
 function restartCourt() {
@@ -313,9 +313,9 @@ function nextQuizQuestion(scene) {
   highlightQuizObject(scene, null);
 }
 
-// Controls
-document.getElementById('teachBtn').onclick = () => { scene.showTeachCourt(); };
-document.getElementById('quizBtn').onclick = () => { scene.showQuizCourt(); };
+// Controls (FIXED: call global functions, not as scene properties)
+document.getElementById('teachBtn').onclick = () => { showTeachCourt(); };
+document.getElementById('quizBtn').onclick = () => { showQuizCourt(); };
 
 window.addEventListener('resize', () => {
   createPhaserGame();
