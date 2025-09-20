@@ -775,6 +775,9 @@
                     quizScore++;
                 }
                 
+                // Update score immediately after answering
+                updateQuizDisplay();
+                
                 showResultModal(correct, courtAreas[quizQuestions[currentQuestion].id].name);
                 
                 setTimeout(() => {
@@ -827,7 +830,10 @@
         function updateQuizDisplay() {
             document.getElementById('current-question').textContent = currentQuestion + 1;
             document.getElementById('total-questions').textContent = quizQuestions.length;
-            document.getElementById('total-questions-score').textContent = currentQuestion + 1; // Questions presented so far
+            
+            // Show score as correct/answered (only show score after first question is answered)
+            const questionsAnswered = currentMode === 'quiz' && currentAnswer ? currentQuestion + 1 : currentQuestion;
+            document.getElementById('total-questions-score').textContent = Math.max(questionsAnswered, 0);
             document.getElementById('current-score').textContent = quizScore;
             document.getElementById('question-text').textContent = quizQuestions[currentQuestion].question;
         }
