@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Badminton Court Trainer (Quiz, Grey-out, Multi-Correct, Net Line Excluded)</title>
+  <title>Badminton Court Trainer (Quiz, Grey-out, Multi-Correct, Net Line Excluded, Outline Bug Fixed)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <style>
@@ -16,7 +16,7 @@
 </head>
 <body>
   <header style="padding:1em;background:#1976d2;color:white;text-align:center;font-size:1.5em;">
-    Badminton Court Trainer (Quiz, Grey-out, Multi-Correct, Net Line Excluded)
+    Badminton Court Trainer (Quiz, Grey-out, Multi-Correct, Net Line Excluded, Outline Bug Fixed)
   </header>
   <div id="controls">
     <button id="teachBtn">Teach Mode</button>
@@ -209,17 +209,25 @@ function create() {
   showTeachCourt();
 }
 
+// Fixed: boundary outlines do not bleed outside canvas
 function restartCourt() {
   scene.graphics.clear();
-  scene.graphics.lineStyle(3, 0x000000);
+  const boundaryStrokeWidth = 3;
+  // Doubles boundary - keep inside canvas
+  scene.graphics.lineStyle(boundaryStrokeWidth, 0x000000);
   scene.graphics.strokeRect(
-    toPx(COURT.sideline_left_doubles), toPx(COURT.baseline_top),
-    toPx(COURT.width_doubles), toPx(COURT.length) - toPx(0)
+    toPx(COURT.sideline_left_doubles) + boundaryStrokeWidth/2,
+    toPx(COURT.baseline_top) + boundaryStrokeWidth/2,
+    toPx(COURT.width_doubles) - boundaryStrokeWidth,
+    toPx(COURT.length) - boundaryStrokeWidth
   );
-  scene.graphics.lineStyle(3, 0x1976d2);
+  // Singles court boundary
+  scene.graphics.lineStyle(boundaryStrokeWidth, 0x1976d2);
   scene.graphics.strokeRect(
-    toPx(COURT.sideline_left_singles), toPx(COURT.baseline_top),
-    toPx(COURT.width_singles), toPx(COURT.length) - toPx(0)
+    toPx(COURT.sideline_left_singles) + boundaryStrokeWidth/2,
+    toPx(COURT.baseline_top) + boundaryStrokeWidth/2,
+    toPx(COURT.width_singles) - boundaryStrokeWidth,
+    toPx(COURT.length) - boundaryStrokeWidth
   );
   getServiceCourts().forEach(sc => {
     scene.graphics.fillStyle(0xe3f2fd, 0.3);
