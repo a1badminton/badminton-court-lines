@@ -2,168 +2,201 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Badminton Court Lines Trainer</title>
+  <title>Badminton Court Trainer - Phaser</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 0; background: #f6f8fa; }
-    header { padding: 1em; background: #1976d2; color: white; font-size: 1.5em; text-align: center;}
-    #app { max-width: 700px; margin: 2em auto; padding: 2em; background: white; border-radius: 12px; box-shadow: 0 0 12px #ccc;}
-    svg { width: 100%; height: auto; margin-bottom: 1em;}
-    .controls { margin-bottom: 1em;}
-    .feedback { margin-top: 1em; font-weight: bold;}
-    .highlight { stroke: #ff9800 !important; stroke-width: 8 !important;}
+    body { margin: 0; padding: 0; background: #f6f8fa; font-family: sans-serif; }
+    #controls { text-align: center; margin: 1em; }
     button { margin: 0 0.5em 0.5em 0; padding: 0.5em 1em; font-size: 1em; border-radius: 5px; border: none; background: #1976d2; color: white; cursor: pointer;}
     button.secondary { background: #888; }
-    .hidden { display: none; }
+    #info { max-width: 700px; margin: 1em auto; background: #fff; border-radius: 8px; box-shadow: 0 0 12px #ccc; padding: 1em;}
+    #phaser { margin: 0 auto; display: block; }
   </style>
 </head>
 <body>
-  <header>Badminton Court Lines Trainer</header>
-  <div id="app">
-    <div class="controls">
-      <button id="teachBtn">Teach Mode</button>
-      <button id="quizBtn" class="secondary">Quiz Mode</button>
-    </div>
-    <div id="court"></div>
-    <div id="info"></div>
-    <div id="quiz" class="hidden">
-      <div id="quizQuestion"></div>
-      <div id="feedback" class="feedback"></div>
-    </div>
+  <header style="padding:1em;background:#1976d2;color:white;text-align:center;font-size:1.5em;">
+    Badminton Court Trainer (Phaser)
+  </header>
+  <div id="controls">
+    <button id="teachBtn">Teach Mode</button>
+    <button id="quizBtn" class="secondary">Quiz Mode</button>
   </div>
+  <div id="info"></div>
+  <div id="phaser"></div>
+
 <script>
-// Court Lines Data
+const COURT = {
+  x: 50, y: 50, width: 300, height: 700,
+  singlesLeft: 90, singlesRight: 310, doublesLeft: 50, doublesRight: 350,
+  baselineTop: 50, baselineBottom: 750,
+  shortService: 210, longServiceSingles: 650, longServiceDoubles: 690,
+  centerX: 200
+};
+
 const lines = [
-  { id: 'baseline-top', name: 'Top Baseline', description: 'The back boundary line on the top side.' },
-  { id: 'baseline-bottom', name: 'Bottom Baseline', description: 'The back boundary line on the bottom side.' },
-  { id: 'sideline-left-singles', name: 'Left Singles Sideline', description: 'Left boundary for singles play.' },
-  { id: 'sideline-right-singles', name: 'Right Singles Sideline', description: 'Right boundary for singles play.' },
-  { id: 'sideline-left-doubles', name: 'Left Doubles Sideline', description: 'Left boundary for doubles play.' },
-  { id: 'sideline-right-doubles', name: 'Right Doubles Sideline', description: 'Right boundary for doubles play.' },
-  { id: 'center-line', name: 'Center Line', description: 'Divides the service courts.' },
-  { id: 'short-service-line', name: 'Short Service Line', description: 'Service must pass this line.' },
-  { id: 'long-service-line-singles', name: 'Long Service Line (Singles)', description: 'Far boundary for singles service.' },
-  { id: 'long-service-line-doubles', name: 'Long Service Line (Doubles)', description: 'Far boundary for doubles service.' }
+  { id: 'baseline-top', name: 'Top Baseline', desc: 'The back boundary line on the top side.', coords: [COURT.doublesLeft, COURT.baselineTop, COURT.doublesRight, COURT.baselineTop] },
+  { id: 'baseline-bottom', name: 'Bottom Baseline', desc: 'The back boundary line on the bottom side.', coords: [COURT.doublesLeft, COURT.baselineBottom, COURT.doublesRight, COURT.baselineBottom] },
+  { id: 'sideline-left-singles', name: 'Left Singles Sideline', desc: 'Left boundary for singles play.', coords: [COURT.singlesLeft, COURT.baselineTop, COURT.singlesLeft, COURT.baselineBottom] },
+  { id: 'sideline-right-singles', name: 'Right Singles Sideline', desc: 'Right boundary for singles play.', coords: [COURT.singlesRight, COURT.baselineTop, COURT.singlesRight, COURT.baselineBottom] },
+  { id: 'sideline-left-doubles', name: 'Left Doubles Sideline', desc: 'Left boundary for doubles play.', coords: [COURT.doublesLeft, COURT.baselineTop, COURT.doublesLeft, COURT.baselineBottom] },
+  { id: 'sideline-right-doubles', name: 'Right Doubles Sideline', desc: 'Right boundary for doubles play.', coords: [COURT.doublesRight, COURT.baselineTop, COURT.doublesRight, COURT.baselineBottom] },
+  { id: 'center-line', name: 'Center Line', desc: 'Divides the service courts.', coords: [COURT.centerX, COURT.shortService, COURT.centerX, COURT.longServiceSingles] },
+  { id: 'short-service-line', name: 'Short Service Line', desc: 'Service must pass this line.', coords: [COURT.singlesLeft, COURT.shortService, COURT.singlesRight, COURT.shortService] },
+  { id: 'long-service-line-singles', name: 'Long Service Line (Singles)', desc: 'Far boundary for singles service.', coords: [COURT.singlesLeft, COURT.longServiceSingles, COURT.singlesRight, COURT.longServiceSingles] },
+  { id: 'long-service-line-doubles', name: 'Long Service Line (Doubles)', desc: 'Far boundary for doubles service.', coords: [COURT.doublesLeft, COURT.longServiceDoubles, COURT.doublesRight, COURT.longServiceDoubles] }
 ];
 
-// Areas for service quiz (simplified)
+// Service courts as rectangles for highlight/quiz
 const serviceCourts = [
-  { id: 'left-service-court', name: 'Left Service Court', description: 'Area to the left of the center line between the short and long service lines.' },
-  { id: 'right-service-court', name: 'Right Service Court', description: 'Area to the right of the center line between the short and long service lines.' }
+  { id: 'left-service-court', name: 'Left Service Court', desc: 'Area to the left of the center line.', 
+    rect: [COURT.singlesLeft, COURT.shortService, COURT.centerX-COURT.singlesLeft, COURT.longServiceSingles-COURT.shortService] },
+  { id: 'right-service-court', name: 'Right Service Court', desc: 'Area to the right of the center line.', 
+    rect: [COURT.centerX, COURT.shortService, COURT.singlesRight-COURT.centerX, COURT.longServiceSingles-COURT.shortService] }
 ];
 
-// SVG Court Generator (simplified, not to scale)
-function renderCourt(highlightId=null) {
-  return `<svg viewBox="0 0 400 800">
-    <!-- Baselines -->
-    <line id="baseline-top" x1="20" y1="40" x2="380" y2="40" stroke="#222" stroke-width="4"/>
-    <line id="baseline-bottom" x1="20" y1="760" x2="380" y2="760" stroke="#222" stroke-width="4"/>
-    <!-- Sidelines Doubles -->
-    <line id="sideline-left-doubles" x1="20" y1="40" x2="20" y2="760" stroke="#222" stroke-width="4"/>
-    <line id="sideline-right-doubles" x1="380" y1="40" x2="380" y2="760" stroke="#222" stroke-width="4"/>
-    <!-- Sidelines Singles -->
-    <line id="sideline-left-singles" x1="60" y1="40" x2="60" y2="760" stroke="#1976d2" stroke-width="2"/>
-    <line id="sideline-right-singles" x1="340" y1="40" x2="340" y2="760" stroke="#1976d2" stroke-width="2"/>
-    <!-- Center Line -->
-    <line id="center-line" x1="200" y1="220" x2="200" y2="580" stroke="#1976d2" stroke-width="2"/>
-    <!-- Short Service Line -->
-    <line id="short-service-line" x1="60" y1="220" x2="340" y2="220" stroke="#1976d2" stroke-width="2"/>
-    <!-- Long Service Line Singles -->
-    <line id="long-service-line-singles" x1="60" y1="580" x2="340" y2="580" stroke="#1976d2" stroke-width="2"/>
-    <!-- Long Service Line Doubles -->
-    <line id="long-service-line-doubles" x1="20" y1="620" x2="380" y2="620" stroke="#1976d2" stroke-width="2"/>
-    <!-- Service Courts (for quiz) -->
-    <rect id="left-service-court" x="60" y="220" width="140" height="360" fill="#e3f2fd" opacity="0.4"/>
-    <rect id="right-service-court" x="200" y="220" width="140" height="360" fill="#e3f2fd" opacity="0.4"/>
-    <!-- Highlight -->
-    ${highlightId ? `<g><use href="#${highlightId}" class="highlight"/></g>` : ''}
-  </svg>`;
-}
-
-// State
 let mode = 'teach'; // or 'quiz'
 let currentQuiz = null;
 let score = 0;
 let total = 0;
 
-// DOM Elements
-const courtDiv = document.getElementById('court');
-const infoDiv = document.getElementById('info');
-const quizDiv = document.getElementById('quiz');
-const quizQuestionDiv = document.getElementById('quizQuestion');
-const feedbackDiv = document.getElementById('feedback');
-const teachBtn = document.getElementById('teachBtn');
-const quizBtn = document.getElementById('quizBtn');
+// Phaser game config
+const config = {
+  type: Phaser.AUTO,
+  parent: 'phaser',
+  width: 400,
+  height: 800,
+  backgroundColor: '#f6f8fa',
+  scene: {
+    preload: function(){},
+    create: create,
+    restartCourt: restartCourt,
+    showTeachCourt: showTeachCourt,
+    showQuizCourt: showQuizCourt
+  }
+};
 
-function showTeachMode() {
-  mode = 'teach';
-  quizDiv.classList.add('hidden');
-  courtDiv.innerHTML = renderCourt();
-  infoDiv.innerHTML = `<p>Tap a line or court area to learn its name and purpose.</p>`;
-  // Add event listeners for lines
-  setTimeout(() => {
-    [...lines, ...serviceCourts].forEach(obj => {
-      const el = document.getElementById(obj.id);
-      if (el) {
-        el.style.cursor = 'pointer';
-        el.onclick = () => {
-          courtDiv.innerHTML = renderCourt(obj.id);
-          infoDiv.innerHTML = `<h3>${obj.name}</h3><p>${obj.description}</p>`;
-        }
+let game, scene;
+
+function create() {
+  scene = this;
+  this.graphics = this.add.graphics();
+  this.lineObjects = [];
+  this.serviceObjects = [];
+  restartCourt();
+
+  // Input events for quiz/teach mode
+  this.input.on('gameobjectdown', (pointer, obj) => {
+    if(mode === 'teach') {
+      info(obj.data.get('name'), obj.data.get('desc'));
+      highlightObject(obj);
+    } else if(mode === 'quiz') {
+      if(currentQuiz && currentQuiz.id === obj.data.get('id')) {
+        score++; feedback(`✅ Correct! (${score}/${total})`);
+        highlightObject(obj);
+      } else {
+        feedback(`❌ Incorrect. That was ${obj.data.get('name')}. (${score}/${total})`);
+        highlightQuizObject(currentQuiz.id);
       }
-    });
-  }, 50);
+      setTimeout(nextQuizQuestion, 1200);
+    }
+  });
 }
 
-function showQuizMode() {
+function restartCourt() {
+  scene.graphics.clear();
+  drawCourt();
+  makeInteractiveLines();
+  makeInteractiveServiceCourts();
+}
+
+function drawCourt() {
+  // Outer court
+  scene.graphics.lineStyle(4, 0x222222);
+  scene.graphics.strokeRect(COURT.doublesLeft, COURT.baselineTop, COURT.doublesRight-COURT.doublesLeft, COURT.baselineBottom-COURT.baselineTop);
+  // Singles court
+  scene.graphics.lineStyle(2, 0x1976d2);
+  scene.graphics.strokeRect(COURT.singlesLeft, COURT.baselineTop, COURT.singlesRight-COURT.singlesLeft, COURT.baselineBottom-COURT.baselineTop);
+  // Service courts fill (light blue)
+  serviceCourts.forEach(sc => {
+    scene.graphics.fillStyle(0xe3f2fd, 0.4);
+    scene.graphics.fillRect(...sc.rect);
+  });
+}
+
+function makeInteractiveLines() {
+  scene.lineObjects.forEach(obj => obj.destroy());
+  scene.lineObjects = lines.map(line => {
+    const obj = scene.add.line(0, 0, ...line.coords, 0x1976d2).setLineWidth(8,8).setOrigin(0);
+    obj.setInteractive({ useHandCursor: true, hitArea: new Phaser.Geom.Line(...line.coords), hitAreaCallback: Phaser.Geom.Line.Contains });
+    obj.data = new Phaser.Data.DataManager(obj);
+    obj.data.set('name', line.name);
+    obj.data.set('desc', line.desc);
+    obj.data.set('id', line.id);
+    return obj;
+  });
+}
+
+function makeInteractiveServiceCourts() {
+  scene.serviceObjects.forEach(obj => obj.destroy());
+  scene.serviceObjects = serviceCourts.map(area => {
+    const obj = scene.add.rectangle(area.rect[0]+area.rect[2]/2, area.rect[1]+area.rect[3]/2, area.rect[2], area.rect[3], 0xe3f2fd, 0.01);
+    obj.setInteractive({ useHandCursor: true });
+    obj.data = new Phaser.Data.DataManager(obj);
+    obj.data.set('name', area.name);
+    obj.data.set('desc', area.desc);
+    obj.data.set('id', area.id);
+    return obj;
+  });
+}
+
+function info(name, desc) {
+  document.getElementById('info').innerHTML = `<h3>${name}</h3><p>${desc}</p>`;
+}
+function feedback(msg) {
+  document.getElementById('info').innerHTML = `<div style="font-weight:bold">${msg}</div>`;
+}
+function highlightObject(obj) {
+  restartCourt();
+  if(obj.type === 'Line') {
+    obj.setStrokeStyle(12, 0xff9800);
+  } else if(obj.type === 'Rectangle') {
+    obj.setFillStyle(0xff9800, 0.4);
+  }
+}
+function highlightQuizObject(id) {
+  restartCourt();
+  [...scene.lineObjects, ...scene.serviceObjects].forEach(o => {
+    if(o.data.get('id') === id) highlightObject(o);
+  });
+}
+
+function showTeachCourt() {
+  mode = 'teach';
+  score = 0; total = 0; currentQuiz = null;
+  restartCourt();
+  info('Tap a line or court area to learn its name and purpose.', '');
+}
+function showQuizCourt() {
   mode = 'quiz';
-  infoDiv.innerHTML = '';
-  courtDiv.innerHTML = renderCourt();
-  quizDiv.classList.remove('hidden');
   score = 0; total = 0;
+  restartCourt();
   nextQuizQuestion();
 }
-
 function nextQuizQuestion() {
   total++;
-  feedbackDiv.textContent = '';
-  // Randomly pick line or service court
-  const all = [...lines, ...serviceCourts];
-  currentQuiz = all[Math.floor(Math.random() * all.length)];
-  quizQuestionDiv.innerHTML = `<b>Which line or area is: <span style="color:#1976d2">${currentQuiz.name}</span>?</b><br>
-  <small>Tap on the court to answer.</small>`;
-  courtDiv.innerHTML = renderCourt();
-  setTimeout(() => {
-    [...lines, ...serviceCourts].forEach(obj => {
-      const el = document.getElementById(obj.id);
-      if (el) {
-        el.style.cursor = 'pointer';
-        el.onclick = () => handleQuizAnswer(obj.id);
-      }
-    });
-  }, 50);
+  currentQuiz = Phaser.Utils.Array.GetRandom([...lines, ...serviceCourts]);
+  feedback(`<b>Which line or area is: <span style="color:#1976d2">${currentQuiz.name}</span>?</b><br><small>Tap on the court to answer.</small>`);
+  highlightQuizObject(null);
 }
 
-function handleQuizAnswer(id) {
-  if (!currentQuiz) return;
-  if (id === currentQuiz.id) {
-    score++;
-    feedbackDiv.textContent = `✅ Correct! (${score}/${total})`;
-    courtDiv.innerHTML = renderCourt(id);
-  } else {
-    feedbackDiv.textContent = `❌ Incorrect. That was ${lines.find(l=>l.id===id)?.name||serviceCourts.find(sc=>sc.id===id)?.name}. (${score}/${total})`;
-    courtDiv.innerHTML = renderCourt(currentQuiz.id);
-  }
-  // Next question after short delay
-  setTimeout(nextQuizQuestion, 1200);
-}
+// UI events
+document.getElementById('teachBtn').onclick = () => { scene.showTeachCourt(); };
+document.getElementById('quizBtn').onclick = () => { scene.showQuizCourt(); };
 
-// Event listeners for mode buttons
-teachBtn.onclick = showTeachMode;
-quizBtn.onclick = showQuizMode;
+// Start game
+game = new Phaser.Game(config);
 
-// Start in teach mode
-showTeachMode();
 </script>
 </body>
 </html>
