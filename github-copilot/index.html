@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Badminton Court Trainer (Phaser, Imperial)</title>
+  <title>Badminton Court Trainer (Phaser, Imperial Units)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <style>
@@ -26,23 +26,13 @@
   <div id="phaser"></div>
 
 <script>
-/*
-Court dimensions in inches (imperial units):
-44' x 20' (528 x 240 inches)
-Singles width: 17' (204 inches)
-Net at halfway (22' from baseline, y=264)
-Short service line: 6'6" from net (y=264 ± 78)
-Long service line for doubles: 2'6" (30") in from baseline (y=30 and y=528-30=498)
-Center line splits width at x=120 (half doubles width from left)
-*/
-
 const COURT = {
-  scale: 1.5, // scale to fit screen
+  scale: 1.5, // scale inches to pixels
   margin: 40, // pixels
-  length: 528, // inches
-  width_doubles: 240,
-  width_singles: 204,
-  net_y: 264,
+  length: 528, // 44 ft
+  width_doubles: 240, // 20 ft
+  width_singles: 204, // 17 ft
+  net_y: 264, // halfway
   baseline_top: 0,
   baseline_bottom: 528,
   sideline_left_doubles: 0,
@@ -51,21 +41,17 @@ const COURT = {
   sideline_right_singles: 222, // 240-18
   short_service_line_top: 264 - 78, // 186
   short_service_line_bottom: 264 + 78, // 342
-  long_service_line_doubles_top: 30, // from top
+  long_service_line_doubles_top: 30, // 2'6" from top
   long_service_line_doubles_bottom: 528 - 30, // 498
-  long_service_line_singles_top: 0, // baseline
-  long_service_line_singles_bottom: 528, // baseline
   center_line_x: 120, // half doubles width
 };
 
 function toPx(inches) {
-  // Fit court into Phaser canvas (canvas 480x1100)
-  // Padding/margin included.
   return COURT.margin + inches * COURT.scale;
 }
 
 const LINES = [
-  // Baselines (top/bottom)
+  // Baselines
   { id:'baseline-top', name:'Top Baseline', desc:'Back boundary (baseline), top of court.', coords:[COURT.sideline_left_doubles, COURT.baseline_top, COURT.sideline_right_doubles, COURT.baseline_top] },
   { id:'baseline-bottom', name:'Bottom Baseline', desc:'Back boundary (baseline), bottom of court.', coords:[COURT.sideline_left_doubles, COURT.baseline_bottom, COURT.sideline_right_doubles, COURT.baseline_bottom] },
   // Doubles sidelines
@@ -87,7 +73,6 @@ const LINES = [
   { id:'net', name:'Net (visual only)', desc:'Net location (not painted in real life).', coords:[COURT.sideline_left_doubles, COURT.net_y, COURT.sideline_right_doubles, COURT.net_y], net:true }
 ];
 
-// Service areas (for quiz/teach)
 const SERVICE_COURTS = [
   { id:'top-left-service', name:'Top Left Service Court', desc:'Left half, in front of top short service line.', area:{
     x:COURT.sideline_left_singles, y:COURT.short_service_line_top, w:COURT.center_line_x-COURT.sideline_left_singles, h:COURT.net_y-COURT.short_service_line_top
@@ -131,14 +116,35 @@ function create() {
   this.serviceObjs = [];
   restartCourt();
 
+  // Hover feedback for lines
+  this.input.on('pointermove', function (pointer) {
+    let found = false;
+    [...scene.lineObjs, ...scene.serviceObjs].forEach(obj => {
+      if (obj.input && obj.input.enabled && obj.input.hitArea && obj.input.hitAreaCallback &&
+          obj.input.hitAreaCallback(obj.input.hitArea, pointer.x, pointer.y)) {
+        if (!obj.data.get('hovered')) {
+          obj.data.set('hovered', true);
+          highlightObject(obj, true);
+        }
+        found = true;
+      } else if (obj.data.get('hovered')) {
+        obj.data.set('hovered', false);
+        highlightObject(obj, false);
+      }
+    });
+    if (!found) {
+      restartCourt(); // Remove all highlights if nothing hovered
+    }
+  });
+
   this.input.on('gameobjectdown', (pointer, obj) => {
     if (mode === 'teach') {
       info(obj.data.get('name'), obj.data.get('desc'));
-      highlightObject(obj);
+      highlightObject(obj, true);
     } else if (mode === 'quiz') {
       if (currentQuiz && currentQuiz.id === obj.data.get('id')) {
         score++; feedback(`✅ Correct! (${score}/${total})`);
-        highlightObject(obj);
+        highlightObject(obj, true);
       } else {
         feedback(`❌ Incorrect. That was ${obj.data.get('name')}. (${score}/${total})`);
         highlightQuizObject(currentQuiz.id);
@@ -160,7 +166,7 @@ function drawCourt() {
   scene.graphics.lineStyle(4, 0x000000);
   scene.graphics.strokeRect(
     toPx(COURT.sideline_left_doubles), toPx(COURT.baseline_top),
-    toPx(COURT.width_doubles) - toPx(0), toPx(COURT.length) - toPx(0)
+    toPx(COURT.width_doubles), toPx(COURT.length) - toPx(0)
   );
   // Singles boundary
   scene.graphics.lineStyle(2, 0x1976d2);
@@ -197,6 +203,7 @@ function makeInteractiveLines() {
     obj.data.set('name', line.name);
     obj.data.set('desc', line.desc);
     obj.data.set('id', line.id);
+    obj.data.set('hovered', false);
     return obj;
   });
 }
@@ -216,6 +223,7 @@ function makeInteractiveServiceCourts() {
     obj.data.set('name', area.name);
     obj.data.set('desc', area.desc);
     obj.data.set('id', area.id);
+    obj.data.set('hovered', false);
     return obj;
   });
 }
@@ -226,18 +234,20 @@ function info(name, desc) {
 function feedback(msg) {
   document.getElementById('info').innerHTML = `<div style="font-weight:bold">${msg}</div>`;
 }
-function highlightObject(obj) {
+function highlightObject(obj, hover) {
   restartCourt();
   if (obj.type === 'Line') {
-    obj.setStrokeStyle(16, 0xff9800);
+    if (hover) obj.setStrokeStyle(16, 0xff9800);
+    else obj.setStrokeStyle(obj.data.get('id') === 'net' ? 2 : 6, obj.data.get('id') === 'net' ? 0x888888 : 0x1976d2);
   } else if (obj.type === 'Rectangle') {
-    obj.setFillStyle(0xff9800, 0.4);
+    if (hover) obj.setFillStyle(0xff9800, 0.4);
+    else obj.setFillStyle(0xe3f2fd, 0.01);
   }
 }
 function highlightQuizObject(id) {
   restartCourt();
   [...scene.lineObjs, ...scene.serviceObjs].forEach(o => {
-    if (o.data.get('id') === id) highlightObject(o);
+    if (o.data.get('id') === id) highlightObject(o, true);
   });
 }
 
