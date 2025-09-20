@@ -124,9 +124,9 @@ const BadmintonCourtTrainer = () => {
       <line x1="50" y1="50" x2="250" y2="50" stroke="black" strokeWidth="2"/>
       <line x1="50" y1="390" x2="250" y2="390" stroke="black" strokeWidth="2"/>
       
-      {/* Center lines (short lines in middle of service courts) */}
-      <line x1="150" y1="102" x2="150" y2="182" stroke="black" strokeWidth="2"/>
-      <line x1="150" y1="258" x2="150" y2="338" stroke="black" strokeWidth="2"/>
+      {/* Center lines (from short service line to baseline) */}
+      <line x1="150" y1="50" x2="150" y2="182" stroke="black" strokeWidth="2"/>
+      <line x1="150" y1="258" x2="150" y2="390" stroke="black" strokeWidth="2"/>
 
       {/* Interactive overlays */}
       {interactive && (
@@ -161,10 +161,10 @@ const BadmintonCourtTrainer = () => {
           <rect x="45" y="385" width="210" height="10" fill={highlightArea === 'back_boundary' ? courtAreas.back_boundary.color : 'transparent'} 
                 onClick={() => handleAreaClick('back_boundary')} className="cursor-pointer hover:fill-cyan-200 transition-colors" />
           
-          {/* Center lines (vertical, in middle of service areas) */}
-          <rect x="145" y="97" width="10" height="90" fill={highlightArea === 'center_line' ? courtAreas.center_line.color : 'transparent'} 
+          {/* Center lines (vertical, from short service line to baseline) */}
+          <rect x="145" y="45" width="10" height="142" fill={highlightArea === 'center_line' ? courtAreas.center_line.color : 'transparent'} 
                 onClick={() => handleAreaClick('center_line')} className="cursor-pointer hover:fill-pink-200 transition-colors" />
-          <rect x="145" y="253" width="10" height="90" fill={highlightArea === 'center_line' ? courtAreas.center_line.color : 'transparent'} 
+          <rect x="145" y="253" width="10" height="142" fill={highlightArea === 'center_line' ? courtAreas.center_line.color : 'transparent'} 
                 onClick={() => handleAreaClick('center_line')} className="cursor-pointer hover:fill-pink-200 transition-colors" />
           
           {/* Service courts */}
