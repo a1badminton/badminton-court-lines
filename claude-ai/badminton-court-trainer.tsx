@@ -132,8 +132,8 @@ const BadmintonCourtTrainer = () => {
 
         {/* User Information Modal */}
         {showUserModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0}}>
+            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl" style={{backgroundColor: 'white', zIndex: 9999}}>
               <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Quiz Information</h2>
               
               <div className="space-y-4">
@@ -211,6 +211,7 @@ const BadmintonCourtTrainer = () => {
   };
 
   const openQuizModal = () => {
+    console.log('Opening quiz modal'); // Debug log
     setShowUserModal(true);
   };
 
