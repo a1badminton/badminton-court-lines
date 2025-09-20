@@ -130,104 +130,12 @@ const BadmintonCourtTrainer = () => {
           </div>
         </div>
 
-        {/* User Information Modal */}
+        {/* Simple Test Modal */}
         {showUserModal && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999
-          }}>
-            <div style={{
-              backgroundColor: 'white',
-              borderRadius: '8px',
-              padding: '32px',
-              maxWidth: '400px',
-              width: '90%',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}>
-              <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center' }}>
-                Quiz Information
-              </h2>
-              
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '16px'
-                  }}
-                  placeholder="Enter your full name"
-                  autoFocus
-                />
-              </div>
-              
-              <div style={{ marginBottom: '32px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
-                  Date of Birth
-                </label>
-                <input
-                  type="date"
-                  value={userDOB}
-                  onChange={(e) => setUserDOB(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '16px'
-                  }}
-                />
-              </div>
-              
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <button
-                  onClick={closeQuizModal}
-                  style={{
-                    flex: 1,
-                    padding: '8px 16px',
-                    backgroundColor: '#6b7280',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '16px'
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={startQuiz}
-                  disabled={!userName.trim() || !userDOB}
-                  style={{
-                    flex: 1,
-                    padding: '8px 16px',
-                    backgroundColor: (!userName.trim() || !userDOB) ? '#d1d5db' : '#10b981',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: (!userName.trim() || !userDOB) ? 'not-allowed' : 'pointer',
-                    fontSize: '16px'
-                  }}
-                >
-                  Start Quiz
-                </button>
-              </div>
-            </div>
+          <div>
+            <h1>MODAL IS HERE!</h1>
+            <p>This is a test modal</p>
+            <button onClick={closeQuizModal}>Close</button>
           </div>
         )}
       </div>
