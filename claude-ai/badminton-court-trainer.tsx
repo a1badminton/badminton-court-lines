@@ -2,7 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { Check, X, RotateCcw, BookOpen, Brain, Home } from 'lucide-react';
 
 const BadmintonCourtTrainer = () => {
-  const [mode, setMode] = useState('menu'); // 'menu', 'learn', 'quiz', 'userInfo'
+  const [mode, setMode] = useState('menu'); // 'menu', 'learn', 'quiz'
+  const [showUserModal, setShowUserModal] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showResult, setShowResult] = useState(false);
@@ -128,6 +129,61 @@ const BadmintonCourtTrainer = () => {
             </div>
           </div>
         </div>
+
+        {/* User Information Modal */}
+        {showUserModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Quiz Information</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="userName"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter your full name"
+                    autoFocus
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="userDOB" className="block text-sm font-medium text-gray-700 mb-2">
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    id="userDOB"
+                    value={userDOB}
+                    onChange={(e) => setUserDOB(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-4 mt-8">
+                <button
+                  onClick={closeQuizModal}
+                  className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={startQuiz}
+                  disabled={!userName.trim() || !userDOB}
+                  className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Start Quiz
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -154,8 +210,19 @@ const BadmintonCourtTrainer = () => {
     }
   };
 
+  const openQuizModal = () => {
+    setShowUserModal(true);
+  };
+
+  const closeQuizModal = () => {
+    setShowUserModal(false);
+    setUserName('');
+    setUserDOB('');
+  };
+
   const startQuiz = () => {
     if (userName.trim() && userDOB) {
+      setShowUserModal(false);
       setMode('quiz');
       setCurrentQuestion(0);
       setQuizScore(0);
@@ -330,7 +397,7 @@ const BadmintonCourtTrainer = () => {
             Learning Mode
           </button>
           <button
-            onClick={() => setMode('userInfo')}
+            onClick={openQuizModal}
             className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
           >
             <Brain size={20} />
