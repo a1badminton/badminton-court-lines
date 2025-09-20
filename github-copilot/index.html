@@ -72,7 +72,7 @@ const LINES = [
   { id:'net', name:'Net (visual only)', desc:'Net location (not painted in real life).', coords:[COURT.sideline_left_doubles, COURT.net_y, COURT.sideline_right_doubles, COURT.net_y], net:true }
 ];
 
-// Service courts: between short service line and long service line for doubles (not between net and short service line)
+// Service courts: between short service line and long service line for doubles
 const SERVICE_COURTS = [
   { id:'top-left-service', name:'Top Left Service Court', desc:'Left half, between top short service and top long service lines.', area:{
     x:COURT.sideline_left_singles, 
@@ -129,7 +129,7 @@ function create() {
   // Interactive overlays for lines/areas
   this.lineObjs = LINES.map(line => {
     const color = line.net ? 0x888888 : 0x1976d2;
-    const width = line.net ? 2 : 6;
+    const width = line.net ? 1 : 3;
     const obj = this.add.line(0, 0,
       toPx(line.coords[0]), toPx(line.coords[1]),
       toPx(line.coords[2]), toPx(line.coords[3]),
@@ -203,13 +203,13 @@ function create() {
 function restartCourt() {
   scene.graphics.clear();
   // Outer doubles boundary
-  scene.graphics.lineStyle(4, 0x000000);
+  scene.graphics.lineStyle(3, 0x000000); // thin border
   scene.graphics.strokeRect(
     toPx(COURT.sideline_left_doubles), toPx(COURT.baseline_top),
     toPx(COURT.width_doubles), toPx(COURT.length) - toPx(0)
   );
   // Singles boundary
-  scene.graphics.lineStyle(2, 0x1976d2);
+  scene.graphics.lineStyle(3, 0x1976d2); // thin border
   scene.graphics.strokeRect(
     toPx(COURT.sideline_left_singles), toPx(COURT.baseline_top),
     toPx(COURT.width_singles), toPx(COURT.length) - toPx(0)
@@ -232,8 +232,8 @@ function feedback(msg) {
 }
 function highlightObject(obj, active) {
   if (obj.type === 'Line') {
-    if (active) obj.setStrokeStyle(16, 0xff9800);
-    else obj.setStrokeStyle(obj.data.get('id') === 'net' ? 2 : 6, obj.data.get('id') === 'net' ? 0x888888 : 0x1976d2);
+    if (active) obj.setStrokeStyle(10, 0xff9800); // orange highlight
+    else obj.setStrokeStyle(obj.data.get('id') === 'net' ? 1 : 3, obj.data.get('id') === 'net' ? 0x888888 : 0x1976d2);
   } else if (obj.type === 'Rectangle') {
     if (active) obj.setFillStyle(0xff9800, 0.4);
     else obj.setFillStyle(0xe3f2fd, 0.01);
@@ -250,7 +250,6 @@ function showTeachCourt() {
   score = 0; total = 0; currentQuiz = null;
   restartCourt();
   info('Tap a line or service court to learn its name and purpose.', '');
-  // Remove quiz highlights
   [...scene.lineObjs, ...scene.serviceObjs].forEach(o => highlightObject(o, false));
 }
 function showQuizCourt() {
