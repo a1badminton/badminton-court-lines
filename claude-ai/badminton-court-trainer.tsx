@@ -7,6 +7,7 @@ const BadmintonCourtTrainer = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [selectedArea, setSelectedArea] = useState(null);
+  const [currentAnswer, setCurrentAnswer] = useState(null);
 
   // Court areas and their properties
   const courtAreas = {
@@ -72,6 +73,7 @@ const BadmintonCourtTrainer = () => {
     if (mode === 'learn') {
       setSelectedArea(areaId);
     } else if (mode === 'quiz') {
+      setCurrentAnswer(areaId);
       const correct = areaId === quizQuestions[currentQuestion].id;
       if (correct) {
         setQuizScore(prev => prev + 1);
@@ -81,6 +83,7 @@ const BadmintonCourtTrainer = () => {
         if (currentQuestion < quizQuestions.length - 1) {
           setCurrentQuestion(prev => prev + 1);
           setShowResult(false);
+          setCurrentAnswer(null);
         } else {
           // Quiz completed
           setMode('results');
@@ -93,6 +96,7 @@ const BadmintonCourtTrainer = () => {
     setCurrentQuestion(0);
     setQuizScore(0);
     setShowResult(false);
+    setCurrentAnswer(null);
     setMode('quiz');
   };
 
@@ -359,15 +363,15 @@ const BadmintonCourtTrainer = () => {
         {showResult && (
           <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50`}>
             <div className={`bg-white rounded-lg p-6 text-center ${
-              quizQuestions[currentQuestion].id === quizQuestions[currentQuestion].id ? 'border-4 border-green-500' : 'border-4 border-red-500'
+              currentAnswer === quizQuestions[currentQuestion].id ? 'border-4 border-green-500' : 'border-4 border-red-500'
             }`}>
               <div className={`text-4xl mb-2 ${
-                quizQuestions[currentQuestion].id === quizQuestions[currentQuestion].id ? 'text-green-500' : 'text-red-500'
+                currentAnswer === quizQuestions[currentQuestion].id ? 'text-green-500' : 'text-red-500'
               }`}>
-                {quizQuestions[currentQuestion].id === quizQuestions[currentQuestion].id ? <Check size={48} /> : <X size={48} />}
+                {currentAnswer === quizQuestions[currentQuestion].id ? <Check size={48} /> : <X size={48} />}
               </div>
               <h3 className="text-xl font-bold mb-2">
-                {quizQuestions[currentQuestion].id === quizQuestions[currentQuestion].id ? 'Correct!' : 'Incorrect'}
+                {currentAnswer === quizQuestions[currentQuestion].id ? 'Correct!' : 'Incorrect'}
               </h3>
               <p className="text-gray-600">
                 {courtAreas[quizQuestions[currentQuestion].id].name}
