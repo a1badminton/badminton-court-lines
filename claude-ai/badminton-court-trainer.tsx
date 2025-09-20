@@ -2,12 +2,14 @@ import React, { useState, useCallback } from 'react';
 import { Check, X, RotateCcw, BookOpen, Brain, Home } from 'lucide-react';
 
 const BadmintonCourtTrainer = () => {
-  const [mode, setMode] = useState('menu'); // 'menu', 'learn', 'quiz'
+  const [mode, setMode] = useState('menu'); // 'menu', 'learn', 'quiz', 'userInfo'
   const [quizScore, setQuizScore] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [selectedArea, setSelectedArea] = useState(null);
   const [currentAnswer, setCurrentAnswer] = useState(null);
+  const [userName, setUserName] = useState('');
+  const [userDOB, setUserDOB] = useState('');
 
   // Court areas and their properties
   const courtAreas = {
@@ -70,7 +72,66 @@ const BadmintonCourtTrainer = () => {
   ];
 
   const handleAreaClick = (areaId) => {
-    if (mode === 'learn') {
+    if (mode === 'userInfo') {
+    return (
+      <div className="max-w-4xl mx-auto p-6 bg-white">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Quiz Information</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="userName"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="userDOB" className="block text-sm font-medium text-gray-700 mb-2">
+                  Date of Birth
+                </label>
+                <input
+                  type="date"
+                  id="userDOB"
+                  value={userDOB}
+                  onChange={(e) => setUserDOB(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="flex gap-4 mt-8">
+              <button
+                onClick={() => setMode('menu')}
+                className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={startQuiz}
+                disabled={!userName.trim() || !userDOB}
+                className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                Start Quiz
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === 'learn') {
       setSelectedArea(areaId);
     } else if (mode === 'quiz') {
       setCurrentAnswer(areaId);
@@ -89,6 +150,16 @@ const BadmintonCourtTrainer = () => {
           setMode('results');
         }
       }, 1500);
+    }
+  };
+
+  const startQuiz = () => {
+    if (userName.trim() && userDOB) {
+      setMode('quiz');
+      setCurrentQuestion(0);
+      setQuizScore(0);
+      setShowResult(false);
+      setCurrentAnswer(null);
     }
   };
 
@@ -258,7 +329,7 @@ const BadmintonCourtTrainer = () => {
             Learning Mode
           </button>
           <button
-            onClick={() => setMode('quiz')}
+            onClick={() => setMode('userInfo')}
             className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
           >
             <Brain size={20} />
@@ -342,6 +413,10 @@ const BadmintonCourtTrainer = () => {
               <Home size={16} />
               Menu
             </button>
+            <div className="text-sm text-gray-600">
+              <div className="font-medium">{userName}</div>
+              <div>{userDOB}</div>
+            </div>
             <h2 className="text-2xl font-bold text-gray-800">Quiz Mode</h2>
           </div>
           <div className="text-right">
@@ -389,6 +464,12 @@ const BadmintonCourtTrainer = () => {
       <div className="max-w-4xl mx-auto p-6 bg-white">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Quiz Complete!</h2>
+          
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="text-lg font-semibold text-gray-800 mb-2">{userName}</div>
+            <div className="text-sm text-gray-600">Date of Birth: {userDOB}</div>
+          </div>
+          
           <div className="text-6xl font-bold mb-4 text-blue-600">{percentage}%</div>
           <p className="text-xl text-gray-600 mb-6">
             You got {quizScore} out of {quizQuestions.length} questions correct
