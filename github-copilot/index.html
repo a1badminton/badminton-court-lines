@@ -271,13 +271,7 @@ function restartCourt() {
     toPx(COURT.width_singles) - boundaryStrokeWidth,
     toPx(COURT.length) - boundaryStrokeWidth
   );
-  getServiceCourts().forEach(sc => {
-    scene.graphics.fillStyle(0xe3f2fd, 0.3);
-    scene.graphics.fillRect(
-      toPx(sc.area.x), toPx(sc.area.y),
-      Math.abs(toPx(sc.area.w)), Math.abs(toPx(sc.area.h))
-    );
-  });
+  // Removed unwanted rectangle drawing code here (lines 268-273)
 }
 
 // Highlight helper
