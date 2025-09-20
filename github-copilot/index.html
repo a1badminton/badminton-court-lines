@@ -92,7 +92,6 @@ const getLines = () => [
   { id:'net', name:'Net (visual only)', desc:'Net location (not painted in real life).', coords:[COURT.sideline_left_doubles, COURT.net_y, COURT.sideline_right_doubles, COURT.net_y], net:true }
 ];
 
-// Service courts: left/right, on each side of the court
 const getServiceCourts = () => [
   // Near side (top of canvas)
   { id:'right-service-court', name:'Right Service Court', desc:'Right service court (server\'s right side), between center and sideline, short and long service lines.', area:{
@@ -163,13 +162,10 @@ function create() {
     // Larger hit area: rectangle
     let hitArea;
     if (x1 === x2) {
-      // Vertical line
       hitArea = new Phaser.Geom.Rectangle(x1 - HIT_SIZE/2, Math.min(y1, y2), HIT_SIZE, Math.abs(y2-y1));
     } else if (y1 === y2) {
-      // Horizontal line
       hitArea = new Phaser.Geom.Rectangle(Math.min(x1, x2), y1 - HIT_SIZE/2, Math.abs(x2-x1), HIT_SIZE);
     } else {
-      // Diagonal (not expected here, but robust)
       hitArea = new Phaser.Geom.Rectangle(
         Math.min(x1,x2) - HIT_SIZE/2, Math.min(y1,y2) - HIT_SIZE/2,
         Math.abs(x2-x1) + HIT_SIZE, Math.abs(y2-y1) + HIT_SIZE
@@ -200,20 +196,33 @@ function create() {
     return obj;
   });
 
+  // Only one element hovered at a time
+  let lastHoveredObj = null;
   this.input.on('pointermove', function (pointer) {
-    let highlighted = false;
+    let foundObj = null;
     [...scene.lineObjs, ...scene.serviceObjs].forEach(obj => {
-      if (obj.input && obj.input.enabled &&
-        ((obj.type === 'Line' && Phaser.Geom.Rectangle.Contains(obj.input.hitArea, pointer.x, pointer.y)) ||
-         (obj.type === 'Rectangle' && Phaser.Geom.Rectangle.Contains(obj.input.hitArea, pointer.x, pointer.y)))
+      if (
+        obj.input && obj.input.enabled &&
+        (
+          (obj.type === 'Line' && Phaser.Geom.Rectangle.Contains(obj.input.hitArea, pointer.x, pointer.y)) ||
+          (obj.type === 'Rectangle' && Phaser.Geom.Rectangle.Contains(obj.input.hitArea, pointer.x, pointer.y))
+        )
       ) {
-        highlightObject(obj, true);
-        highlighted = true;
-      } else {
-        highlightObject(obj, false);
+        foundObj = obj;
       }
     });
-    if (!highlighted) {
+
+    if (lastHoveredObj && lastHoveredObj !== foundObj) {
+      highlightObject(lastHoveredObj, false);
+      lastHoveredObj = null;
+    }
+
+    if (foundObj) {
+      if (lastHoveredObj !== foundObj) {
+        highlightObject(foundObj, true);
+        lastHoveredObj = foundObj;
+      }
+    } else {
       if (mode === 'teach') info('Tap a line or service court to learn its name and purpose.', '');
     }
   });
