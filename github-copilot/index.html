@@ -13,7 +13,6 @@
     button.secondary { background: #888; }
     #info { max-width: 700px; margin: 1em auto; background: #fff; border-radius: 8px; box-shadow: 0 0 12px #ccc; padding: 1em;}
     #phaser { margin: 0 auto; display: block;}
-    /* Modal styles */
     .modal-bg {
       display: none;
       position: fixed; top:0; left:0; width:100vw; height:100vh;
@@ -54,7 +53,6 @@
   </div>
   <div id="info"></div>
   <div id="phaser"></div>
-  <!-- Modal Popup HTML -->
   <div class="modal-bg" id="modal-bg">
     <div class="modal" id="modal">
       <h2>Participant Information</h2>
@@ -135,7 +133,6 @@ function getLines() {
 }
 function getServiceCourts() {
   return [
-    // Upper half (above net)
     { id:'left-service-court-upper', name:'Right Service Court', desc:'Left service court, always to the left of the center line from the player\'s perspective.', area:{
       x: COURT.sideline_left_singles,
       y: COURT.short_service_line_y,
@@ -148,7 +145,6 @@ function getServiceCourts() {
       w: COURT.sideline_right_singles - COURT.center_line_x,
       h: COURT.long_service_line_doubles_y - COURT.short_service_line_y
     }},
-    // Lower half (below net)
     { id:'left-service-court-lower', name:'Left Service Court', desc:'Left service court, always to the left of the center line from the player\'s perspective.', area:{
       x: COURT.sideline_left_singles,
       y: COURT.long_service_line_doubles_y_opp,
@@ -166,12 +162,11 @@ function getServiceCourts() {
 let mode = 'teach';
 let currentQuiz = null;
 let score = 0;
-let quizTotal = 0;
+let questionsAsked = 0;
 let game, scene;
 let lastHoveredObj = null;
 let remainingQuizItems = [];
 let greyedOutIds = new Set();
-// For modal
 let userName = '';
 let userBirthdate = '';
 function createPhaserGame() {
@@ -231,10 +226,10 @@ function create() {
     } else if (mode === 'quiz') {
       if (currentQuiz && isCorrectQuizAnswer(obj, currentQuiz)) {
         score++;
-        feedback(`✅ Correct! (${score}/${quizTotal})`);
+        feedback(`✅ Correct! (${score}/${questionsAsked})`);
         greyOutMatchingItems(currentQuiz);
       } else {
-        feedback(`❌ Incorrect. That was ${obj.data.get('name')}. (${score}/${quizTotal})`);
+        feedback(`❌ Incorrect. That was ${obj.data.get('name')}. (${score}/${questionsAsked})`);
         highlightQuizObject(scene, currentQuiz.id);
       }
       setTimeout(() => nextQuizQuestion(scene), 1200);
@@ -318,7 +313,7 @@ function createInteractiveRect(scene, area) {
 }
 function showTeachCourt() {
   mode = 'teach';
-  score = 0; quizTotal = 0; currentQuiz = null;
+  score = 0; questionsAsked = 0; currentQuiz = null;
   remainingQuizItems = [];
   greyedOutIds.clear();
   restartCourt();
@@ -327,25 +322,25 @@ function showTeachCourt() {
 }
 function showQuizCourt() {
   mode = 'quiz';
-  score = 0;
+  score = 0; questionsAsked = 0;
   greyedOutIds.clear();
   remainingQuizItems = [
     ...getLines().filter(line => line.id !== 'net').map(line => ({...line, type: 'Line'})),
     ...getServiceCourts().map(area => ({...area, type: 'Rectangle'}))
   ];
-  quizTotal = remainingQuizItems.length;
   restartCourt();
   nextQuizQuestion(scene);
 }
 function nextQuizQuestion(scene) {
   remainingQuizItems = remainingQuizItems.filter(item => !greyedOutIds.has(item.id));
   if (remainingQuizItems.length === 0) {
-    feedback(`<b>Quiz Complete!</b> You got ${score} out of ${quizTotal}.<br><br>
+    feedback(`<b>Quiz Complete!</b> You got ${score} out of ${questionsAsked}.<br><br>
       <b>Name:</b> ${userName ? userName : '<i>(not provided)</i>'}<br>
       <b>Birthdate:</b> ${userBirthdate ? userBirthdate : '<i>(not provided)</i>'}
     `);
     return;
   }
+  questionsAsked++;
   currentQuiz = Phaser.Utils.Array.GetRandom(remainingQuizItems);
   feedback(`<b>Which line or area is: <span style="color:#1976d2">${currentQuiz.name}</span>?</b><br><small>Tap on the court to answer.</small>`);
   highlightQuizObject(scene, null);
