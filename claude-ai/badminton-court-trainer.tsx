@@ -205,25 +205,25 @@ const BadmintonCourtTrainer = () => {
           
           {/* Service courts */}
           {/* Top half - right service court (from server's perspective) */}
-          <rect x="65" y="45" width="85" height="130" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
+          <rect x="65" y="45" width="80" height="130" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('right_service_court')} className="cursor-pointer"
                 style={{transition: 'fill 0.2s'}}
                 onMouseEnter={(e) => e.target.style.fill = highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'rgba(34, 197, 94, 0.3)'}
                 onMouseLeave={(e) => e.target.style.fill = highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} />
           {/* Top half - left service court */}
-          <rect x="150" y="45" width="85" height="130" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
+          <rect x="155" y="45" width="80" height="130" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('left_service_court')} className="cursor-pointer"
                 style={{transition: 'fill 0.2s'}}
                 onMouseEnter={(e) => e.target.style.fill = highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'rgba(239, 68, 68, 0.3)'}
                 onMouseLeave={(e) => e.target.style.fill = highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} />
           {/* Bottom half - left service court */}
-          <rect x="65" y="305" width="85" height="130" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
+          <rect x="65" y="305" width="80" height="130" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('left_service_court')} className="cursor-pointer"
                 style={{transition: 'fill 0.2s'}}
                 onMouseEnter={(e) => e.target.style.fill = highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'rgba(239, 68, 68, 0.3)'}
                 onMouseLeave={(e) => e.target.style.fill = highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} />
           {/* Bottom half - right service court */}
-          <rect x="150" y="305" width="85" height="130" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
+          <rect x="155" y="305" width="80" height="130" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('right_service_court')} className="cursor-pointer"
                 style={{transition: 'fill 0.2s'}}
                 onMouseEnter={(e) => e.target.style.fill = highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'rgba(34, 197, 94, 0.3)'}
