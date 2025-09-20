@@ -383,6 +383,8 @@ const BadmintonCourtTrainer = () => {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Badminton Court Trainer</h1>
           <p className="text-gray-600">Learn the court lines and test your knowledge</p>
+          {/* Debug info */}
+          <div className="text-xs text-gray-400 mt-2">Modal state: {showUserModal ? 'open' : 'closed'}</div>
         </div>
         
         <div className="flex justify-center mb-8">
