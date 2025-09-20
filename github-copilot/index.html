@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Badminton Court Trainer (Quiz Modal Name/Birthdate)</title>
+  <title>Badminton Court Lines</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Phaser.js 3.90.0 -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
@@ -46,7 +46,7 @@
 </head>
 <body>
   <header style="padding:1em;background:#1976d2;color:white;text-align:center;font-size:1.5em;">
-    Badminton Court Trainer (Quiz Modal Name/Birthdate)
+    Badminton Court Lines
   </header>
   <div id="controls">
     <button id="teachBtn">Teach Mode</button>
@@ -265,13 +265,6 @@ function restartCourt() {
   const boundaryStrokeWidth = 3;
   // Singles court boundary only
   scene.graphics.lineStyle(boundaryStrokeWidth, 0x1976d2);
-  scene.graphics.strokeRect(
-    toPx(COURT.sideline_left_singles) + boundaryStrokeWidth/2,
-    toPx(COURT.baseline_top) + boundaryStrokeWidth/2,
-    toPx(COURT.width_singles) - boundaryStrokeWidth,
-    toPx(COURT.length) - boundaryStrokeWidth
-  );
-  // Removed unwanted rectangle drawing code here (lines 268-273)
 }
 
 // Highlight helper
