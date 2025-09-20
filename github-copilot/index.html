@@ -140,13 +140,13 @@ function getLines() {
 function getServiceCourts() {
   return [
     // Upper half (above net)
-    { id:'left-service-court-upper', name:'Left Service Court', desc:'Left service court, always to the left of the center line from the player\'s perspective.', area:{
+    { id:'left-service-court-upper', name:'Right Service Court', desc:'Left service court, always to the left of the center line from the player\'s perspective.', area:{
       x: COURT.sideline_left_singles,
       y: COURT.short_service_line_y,
       w: COURT.center_line_x - COURT.sideline_left_singles,
       h: COURT.long_service_line_doubles_y - COURT.short_service_line_y
     }},
-    { id:'right-service-court-upper', name:'Right Service Court', desc:'Right service court, always to the right of the center line from the player\'s perspective.', area:{
+    { id:'right-service-court-upper', name:'Left Service Court', desc:'Right service court, always to the right of the center line from the player\'s perspective.', area:{
       x: COURT.center_line_x,
       y: COURT.short_service_line_y,
       w: COURT.sideline_right_singles - COURT.center_line_x,
@@ -173,6 +173,7 @@ let mode = 'teach';
 let currentQuiz = null;
 let score = 0;
 let total = 0;
+let quizTotal = 0;
 let game, scene;
 let lastHoveredObj = null;
 let remainingQuizItems = []; // for quiz mode
@@ -246,10 +247,10 @@ function create() {
     } else if (mode === 'quiz') {
       if (currentQuiz && isCorrectQuizAnswer(obj, currentQuiz)) {
         score++;
-        feedback(`✅ Correct! (${score}/${total})`);
+        feedback(`✅ Correct! (${score}/${quizTotal})`);
         greyOutMatchingItems(currentQuiz);
       } else {
-        feedback(`❌ Incorrect. That was ${obj.data.get('name')}. (${score}/${total})`);
+        feedback(`❌ Incorrect. That was ${obj.data.get('name')}. (${score}/${quizTotal})`);
         highlightQuizObject(scene, currentQuiz.id);
       }
       setTimeout(() => nextQuizQuestion(scene), 1200);
@@ -346,7 +347,7 @@ function createInteractiveRect(scene, area) {
 // Quiz logic
 function showTeachCourt() {
   mode = 'teach';
-  score = 0; total = 0; currentQuiz = null;
+  score = 0; total = 0; quizTotal = 0; currentQuiz = null;
   remainingQuizItems = [];
   greyedOutIds.clear();
   restartCourt();
@@ -357,27 +358,24 @@ function showQuizCourt() {
   mode = 'quiz';
   score = 0; total = 0;
   greyedOutIds.clear();
-  // Build the remaining quiz items list (lines + service courts)
   remainingQuizItems = [
-    // Exclude net line from quiz items
     ...getLines().filter(line => line.id !== 'net').map(line => ({...line, type: 'Line'})),
     ...getServiceCourts().map(area => ({...area, type: 'Rectangle'}))
   ];
+  quizTotal = remainingQuizItems.length; // Store initial total
   restartCourt();
   nextQuizQuestion(scene);
 }
 function nextQuizQuestion(scene) {
-  // Remove greyed out items from the pool
   remainingQuizItems = remainingQuizItems.filter(item => !greyedOutIds.has(item.id));
   if (remainingQuizItems.length === 0) {
-    feedback(`<b>Quiz Complete!</b> You got ${score} out of ${total-1}.<br><br>
+    feedback(`<b>Quiz Complete!</b> You got ${score} out of ${quizTotal}.<br><br>
       <b>Name:</b> ${userName ? userName : '<i>(not provided)</i>'}<br>
       <b>Birthdate:</b> ${userBirthdate ? userBirthdate : '<i>(not provided)</i>'}
     `);
     return;
   }
   total++;
-  // Randomly select a quiz item from remaining
   currentQuiz = Phaser.Utils.Array.GetRandom(remainingQuizItems);
   feedback(`<b>Which line or area is: <span style="color:#1976d2">${currentQuiz.name}</span>?</b><br><small>Tap on the court to answer.</small>`);
   highlightQuizObject(scene, null);
