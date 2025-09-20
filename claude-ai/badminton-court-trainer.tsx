@@ -359,15 +359,15 @@ const BadmintonCourtTrainer = () => {
         {showResult && (
           <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50`}>
             <div className={`bg-white rounded-lg p-6 text-center ${
-              quizQuestions[currentQuestion].id === selectedArea ? 'border-4 border-green-500' : 'border-4 border-red-500'
+              quizQuestions[currentQuestion].id === quizQuestions[currentQuestion].id ? 'border-4 border-green-500' : 'border-4 border-red-500'
             }`}>
               <div className={`text-4xl mb-2 ${
-                quizQuestions[currentQuestion].id === selectedArea ? 'text-green-500' : 'text-red-500'
+                quizQuestions[currentQuestion].id === quizQuestions[currentQuestion].id ? 'text-green-500' : 'text-red-500'
               }`}>
-                {quizQuestions[currentQuestion].id === selectedArea ? <Check size={48} /> : <X size={48} />}
+                {quizQuestions[currentQuestion].id === quizQuestions[currentQuestion].id ? <Check size={48} /> : <X size={48} />}
               </div>
               <h3 className="text-xl font-bold mb-2">
-                {quizQuestions[currentQuestion].id === selectedArea ? 'Correct!' : 'Incorrect'}
+                {quizQuestions[currentQuestion].id === quizQuestions[currentQuestion].id ? 'Correct!' : 'Incorrect'}
               </h3>
               <p className="text-gray-600">
                 {courtAreas[quizQuestions[currentQuestion].id].name}
