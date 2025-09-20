@@ -129,49 +129,49 @@ const BadmintonCourtTrainer = () => {
         <>
           {/* Singles sidelines */}
           <rect x="65" y="20" width="10" height="160" fill={highlightArea === 'singles_sideline' ? courtAreas.singles_sideline.color : 'transparent'} 
-                onClick={() => handleAreaClick('singles_sideline')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('singles_sideline')} className="cursor-pointer hover:fill-blue-200 transition-colors" />
           <rect x="325" y="20" width="10" height="160" fill={highlightArea === 'singles_sideline' ? courtAreas.singles_sideline.color : 'transparent'} 
-                onClick={() => handleAreaClick('singles_sideline')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('singles_sideline')} className="cursor-pointer hover:fill-blue-200 transition-colors" />
           
           {/* Doubles sidelines */}
           <rect x="45" y="20" width="10" height="160" fill={highlightArea === 'doubles_sideline' ? courtAreas.doubles_sideline.color : 'transparent'} 
-                onClick={() => handleAreaClick('doubles_sideline')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('doubles_sideline')} className="cursor-pointer hover:fill-green-200 transition-colors" />
           <rect x="345" y="20" width="10" height="160" fill={highlightArea === 'doubles_sideline' ? courtAreas.doubles_sideline.color : 'transparent'} 
-                onClick={() => handleAreaClick('doubles_sideline')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('doubles_sideline')} className="cursor-pointer hover:fill-green-200 transition-colors" />
           
           {/* Short service lines */}
           <rect x="65" y="60" width="270" height="10" fill={highlightArea === 'short_service_line' ? courtAreas.short_service_line.color : 'transparent'} 
-                onClick={() => handleAreaClick('short_service_line')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('short_service_line')} className="cursor-pointer hover:fill-red-200 transition-colors" />
           <rect x="65" y="130" width="270" height="10" fill={highlightArea === 'short_service_line' ? courtAreas.short_service_line.color : 'transparent'} 
-                onClick={() => handleAreaClick('short_service_line')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('short_service_line')} className="cursor-pointer hover:fill-red-200 transition-colors" />
           
           {/* Long service lines doubles */}
           <rect x="45" y="40" width="310" height="10" fill={highlightArea === 'long_service_line_doubles' ? courtAreas.long_service_line_doubles.color : 'transparent'} 
-                onClick={() => handleAreaClick('long_service_line_doubles')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('long_service_line_doubles')} className="cursor-pointer hover:fill-amber-200 transition-colors" />
           <rect x="45" y="150" width="310" height="10" fill={highlightArea === 'long_service_line_doubles' ? courtAreas.long_service_line_doubles.color : 'transparent'} 
-                onClick={() => handleAreaClick('long_service_line_doubles')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('long_service_line_doubles')} className="cursor-pointer hover:fill-amber-200 transition-colors" />
           
           {/* Back boundary */}
           <rect x="45" y="20" width="310" height="10" fill={highlightArea === 'back_boundary' ? courtAreas.back_boundary.color : 'transparent'} 
-                onClick={() => handleAreaClick('back_boundary')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('back_boundary')} className="cursor-pointer hover:fill-cyan-200 transition-colors" />
           <rect x="45" y="170" width="310" height="10" fill={highlightArea === 'back_boundary' ? courtAreas.back_boundary.color : 'transparent'} 
-                onClick={() => handleAreaClick('back_boundary')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('back_boundary')} className="cursor-pointer hover:fill-cyan-200 transition-colors" />
           
           {/* Center lines */}
           <rect x="195" y="40" width="10" height="30" fill={highlightArea === 'center_line' ? courtAreas.center_line.color : 'transparent'} 
-                onClick={() => handleAreaClick('center_line')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('center_line')} className="cursor-pointer hover:fill-pink-200 transition-colors" />
           <rect x="195" y="130" width="10" height="30" fill={highlightArea === 'center_line' ? courtAreas.center_line.color : 'transparent'} 
-                onClick={() => handleAreaClick('center_line')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('center_line')} className="cursor-pointer hover:fill-pink-200 transition-colors" />
           
           {/* Service courts */}
           <rect x="70" y="45" width="130" height="20" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
-                onClick={() => handleAreaClick('right_service_court')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('right_service_court')} className="cursor-pointer hover:fill-green-100 transition-colors" />
           <rect x="200" y="45" width="130" height="20" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
-                onClick={() => handleAreaClick('left_service_court')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('left_service_court')} className="cursor-pointer hover:fill-red-100 transition-colors" />
           <rect x="70" y="135" width="130" height="20" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
-                onClick={() => handleAreaClick('left_service_court')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('left_service_court')} className="cursor-pointer hover:fill-red-100 transition-colors" />
           <rect x="200" y="135" width="130" height="20" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
-                onClick={() => handleAreaClick('right_service_court')} className="cursor-pointer" />
+                onClick={() => handleAreaClick('right_service_court')} className="cursor-pointer hover:fill-green-100 transition-colors" />
         </>
       )}
     </svg>
