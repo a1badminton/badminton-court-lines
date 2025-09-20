@@ -113,8 +113,8 @@ const BadmintonCourtTrainer = () => {
       <line x1="50" y1="240" x2="250" y2="240" stroke="black" strokeWidth="3"/>
       
       {/* Short service lines (running width, 65 units from net) */}
-      <line x1="65" y1="175" x2="235" y2="175" stroke="black" strokeWidth="2"/>
-      <line x1="65" y1="305" x2="235" y2="305" stroke="black" strokeWidth="2"/>
+      <line x1="50" y1="175" x2="250" y2="175" stroke="black" strokeWidth="2"/>
+      <line x1="50" y1="305" x2="250" y2="305" stroke="black" strokeWidth="2"/>
       
       {/* Long service lines for doubles (running width, 195 units from net) */}
       <line x1="50" y1="45" x2="250" y2="45" stroke="black" strokeWidth="2"/>
@@ -144,9 +144,9 @@ const BadmintonCourtTrainer = () => {
                 onClick={() => handleAreaClick('doubles_sideline')} className="cursor-pointer hover:fill-green-200 transition-colors" />
           
           {/* Short service lines (horizontal, 65 units from net) */}
-          <rect x="60" y="170" width="180" height="10" fill={highlightArea === 'short_service_line' ? courtAreas.short_service_line.color : 'transparent'} 
+          <rect x="45" y="170" width="210" height="10" fill={highlightArea === 'short_service_line' ? courtAreas.short_service_line.color : 'transparent'} 
                 onClick={() => handleAreaClick('short_service_line')} className="cursor-pointer hover:fill-red-200 transition-colors" />
-          <rect x="60" y="300" width="180" height="10" fill={highlightArea === 'short_service_line' ? courtAreas.short_service_line.color : 'transparent'} 
+          <rect x="45" y="300" width="210" height="10" fill={highlightArea === 'short_service_line' ? courtAreas.short_service_line.color : 'transparent'} 
                 onClick={() => handleAreaClick('short_service_line')} className="cursor-pointer hover:fill-red-200 transition-colors" />
           
           {/* Long service lines doubles (horizontal, 195 units from net) */}
