@@ -1,22 +1,225 @@
-// ... everything else unchanged ...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Badminton Court Trainer (Quiz, Grey-out, Multi-Correct, Net Line Excluded)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; background: #f6f8fa; height: 100%; font-family: sans-serif; }
+    #controls { text-align: center; margin: 1em; }
+    button { margin: 0 0.5em 0.5em 0; padding: 0.5em 1em; font-size: 1em; border-radius: 5px; border: none; background: #1976d2; color: white; cursor: pointer;}
+    button.secondary { background: #888; }
+    #info { max-width: 700px; margin: 1em auto; background: #fff; border-radius: 8px; box-shadow: 0 0 12px #ccc; padding: 1em;}
+    #phaser { margin: 0 auto; display: block;}
+  </style>
+</head>
+<body>
+  <header style="padding:1em;background:#1976d2;color:white;text-align:center;font-size:1.5em;">
+    Badminton Court Trainer (Quiz, Grey-out, Multi-Correct, Net Line Excluded)
+  </header>
+  <div id="controls">
+    <button id="teachBtn">Teach Mode</button>
+    <button id="quizBtn" class="secondary">Quiz Mode</button>
+  </div>
+  <div id="info"></div>
+  <div id="phaser"></div>
+<script>
+function getResponsiveScale() {
+  const availableHeight = Math.max(window.innerHeight - 220, 350);
+  return availableHeight / 528;
+}
+function getResponsiveConfig() {
+  const scale = getResponsiveScale();
+  const margin = 20;
+  return {
+    scale,
+    margin,
+    width_doubles: 240,
+    length: 528,
+    width_px: margin * 2 + 240 * scale,
+    height_px: margin * 2 + 528 * scale
+  };
+}
+let COURT = getCourtDimensions();
+function getCourtDimensions() {
+  const rc = getResponsiveConfig();
+  return {
+    scale: rc.scale,
+    margin: rc.margin,
+    length: 528,
+    width_doubles: 240,
+    width_singles: 204,
+    net_y: 264,
+    baseline_top: 0,
+    baseline_bottom: 528,
+    sideline_left_doubles: 0,
+    sideline_right_doubles: 240,
+    sideline_left_singles: 18,
+    sideline_right_singles: 222,
+    short_service_line_y: 186,
+    short_service_line_y_opp: 342,
+    long_service_line_doubles_y: 30,
+    long_service_line_doubles_y_opp: 498,
+    center_line_x: 120,
+    width_px: rc.width_px,
+    height_px: rc.height_px
+  };
+}
+function toPx(inches) {
+  return COURT.margin + inches * COURT.scale;
+}
+const HIT_SIZE = 12;
+
+// Correct line definitions (no left/right/top/bottom qualifiers)
+function getLines() {
+  return [
+    { id:'baseline', name:'Baseline', desc:'Back boundary (baseline) at each end of court.', coords:[COURT.sideline_left_doubles, COURT.baseline_top, COURT.sideline_right_doubles, COURT.baseline_top] },
+    { id:'baseline-opp', name:'Baseline', desc:'Back boundary (baseline) at each end of court.', coords:[COURT.sideline_left_doubles, COURT.baseline_bottom, COURT.sideline_right_doubles, COURT.baseline_bottom] },
+    { id:'doubles-sideline', name:'Doubles Sideline', desc:'Sideline for doubles play.', coords:[COURT.sideline_left_doubles, COURT.baseline_top, COURT.sideline_left_doubles, COURT.baseline_bottom] },
+    { id:'doubles-sideline-opp', name:'Doubles Sideline', desc:'Sideline for doubles play.', coords:[COURT.sideline_right_doubles, COURT.baseline_top, COURT.sideline_right_doubles, COURT.baseline_bottom] },
+    { id:'singles-sideline', name:'Singles Sideline', desc:'Sideline for singles play.', coords:[COURT.sideline_left_singles, COURT.baseline_top, COURT.sideline_left_singles, COURT.baseline_bottom] },
+    { id:'singles-sideline-opp', name:'Singles Sideline', desc:'Sideline for singles play.', coords:[COURT.sideline_right_singles, COURT.baseline_top, COURT.sideline_right_singles, COURT.baseline_bottom] },
+    { id:'short-service-line', name:'Short Service Line', desc:'Line 6\'6" (78") from net, each side.', coords:[COURT.sideline_left_doubles, COURT.short_service_line_y, COURT.sideline_right_doubles, COURT.short_service_line_y] },
+    { id:'short-service-line-opp', name:'Short Service Line', desc:'Line 6\'6" (78") from net, each side.', coords:[COURT.sideline_left_doubles, COURT.short_service_line_y_opp, COURT.sideline_right_doubles, COURT.short_service_line_y_opp] },
+    { id:'long-service-line-doubles', name:'Long Service Line for Doubles', desc:'Line 2\'6" (30") in from each baseline for doubles service.', coords:[COURT.sideline_left_doubles, COURT.long_service_line_doubles_y, COURT.sideline_right_doubles, COURT.long_service_line_doubles_y] },
+    { id:'long-service-line-doubles-opp', name:'Long Service Line for Doubles', desc:'Line 2\'6" (30") in from each baseline for doubles service.', coords:[COURT.sideline_left_doubles, COURT.long_service_line_doubles_y_opp, COURT.sideline_right_doubles, COURT.long_service_line_doubles_y_opp] },
+    { id:'center-line', name:'Center Line', desc:'Divides left and right service courts, from short service line to baseline.', coords:[COURT.center_line_x, COURT.short_service_line_y, COURT.center_line_x, COURT.baseline_top] },
+    { id:'center-line-opp', name:'Center Line', desc:'Divides left and right service courts, from short service line to baseline.', coords:[COURT.center_line_x, COURT.short_service_line_y_opp, COURT.center_line_x, COURT.baseline_bottom] },
+    { id:'net', name:'Net (visual only)', desc:'Net location (not painted in real life).', coords:[COURT.sideline_left_doubles, COURT.net_y, COURT.sideline_right_doubles, COURT.net_y], net:true }
+  ];
+}
+
+// Service court definitions: only "Left Service Court" and "Right Service Court", names are duplicated as per player perspective
+function getServiceCourts() {
+  return [
+    // Upper half (above net)
+    { id:'left-service-court-upper', name:'Left Service Court', desc:'Left service court, always to the left of the center line from the player\'s perspective.', area:{
+      x: COURT.sideline_left_singles,
+      y: COURT.short_service_line_y,
+      w: COURT.center_line_x - COURT.sideline_left_singles,
+      h: COURT.long_service_line_doubles_y - COURT.short_service_line_y
+    }},
+    { id:'right-service-court-upper', name:'Right Service Court', desc:'Right service court, always to the right of the center line from the player\'s perspective.', area:{
+      x: COURT.center_line_x,
+      y: COURT.short_service_line_y,
+      w: COURT.sideline_right_singles - COURT.center_line_x,
+      h: COURT.long_service_line_doubles_y - COURT.short_service_line_y
+    }},
+    // Lower half (below net)
+    { id:'left-service-court-lower', name:'Left Service Court', desc:'Left service court, always to the left of the center line from the player\'s perspective.', area:{
+      x: COURT.sideline_left_singles,
+      y: COURT.long_service_line_doubles_y_opp,
+      w: COURT.center_line_x - COURT.sideline_left_singles,
+      h: COURT.short_service_line_y_opp - COURT.long_service_line_doubles_y_opp
+    }},
+    { id:'right-service-court-lower', name:'Right Service Court', desc:'Right service court, always to the right of the center line from the player\'s perspective.', area:{
+      x: COURT.center_line_x,
+      y: COURT.long_service_line_doubles_y_opp,
+      w: COURT.sideline_right_singles - COURT.center_line_x,
+      h: COURT.short_service_line_y_opp - COURT.long_service_line_doubles_y_opp
+    }},
+  ];
+}
+
+// Quiz/teach state
+let mode = 'teach';
+let currentQuiz = null;
+let score = 0;
+let total = 0;
+let game, scene;
+let lastHoveredObj = null;
+let remainingQuizItems = []; // for quiz mode
+let greyedOutIds = new Set(); // IDs of greyed-out items
+
+function createPhaserGame() {
+  if (game) { game.destroy(true); }
+  COURT = getCourtDimensions();
+  const config = {
+    type: Phaser.AUTO,
+    parent: 'phaser',
+    width: COURT.width_px,
+    height: COURT.height_px,
+    backgroundColor: '#f6f8fa',
+    scene: {
+      create: create
+    }
+  };
+  game = new Phaser.Game(config);
+}
+
+function create() {
+  scene = this;
+  this.graphics = this.add.graphics();
+  restartCourt();
+
+  this.lineObjs = getLines().map(line => createInteractiveLine(scene, line));
+  this.serviceObjs = getServiceCourts().map(area => createInteractiveRect(scene, area));
+
+  // Only one element highlighted at a time for hover
+  lastHoveredObj = null;
+  this.input.on('pointermove', function (pointer) {
+    let foundObj = null;
+    [...scene.lineObjs, ...scene.serviceObjs].forEach(obj => {
+      if (
+        obj.input && obj.input.enabled &&
+        !greyedOutIds.has(obj.data.get('id')) &&
+        (
+          (obj.type === 'Line' && Phaser.Geom.Rectangle.Contains(obj.input.hitArea, pointer.x, pointer.y)) ||
+          (obj.type === 'Rectangle' && Phaser.Geom.Rectangle.Contains(obj.input.hitArea, pointer.x, pointer.y))
+        )
+      ) {
+        foundObj = obj;
+      }
+    });
+    if (lastHoveredObj && lastHoveredObj !== foundObj) {
+      highlightObject(lastHoveredObj, false);
+      lastHoveredObj = null;
+    }
+    if (foundObj) {
+      if (lastHoveredObj !== foundObj) {
+        highlightObject(foundObj, true);
+        lastHoveredObj = foundObj;
+      }
+    } else {
+      if (mode === 'teach') info('Tap a line or service court to learn its name and purpose.', '');
+    }
+  });
+
+  // Click/tap logic
+  this.input.on('gameobjectdown', (pointer, obj) => {
+    if (greyedOutIds.has(obj.data.get('id'))) return; // Ignore greyed out items
+
+    if (mode === 'teach') {
+      info(obj.data.get('name'), obj.data.get('desc'));
+      highlightObject(obj, true);
+    } else if (mode === 'quiz') {
+      if (currentQuiz && isCorrectQuizAnswer(obj, currentQuiz)) {
+        score++;
+        feedback(`✅ Correct! (${score}/${total})`);
+        greyOutMatchingItems(currentQuiz);
+      } else {
+        feedback(`❌ Incorrect. That was ${obj.data.get('name')}. (${score}/${total})`);
+        highlightQuizObject(scene, currentQuiz.id);
+      }
+      setTimeout(() => nextQuizQuestion(scene), 1200);
+    }
+  });
+
+  showTeachCourt();
+}
+
 function restartCourt() {
   scene.graphics.clear();
-  const boundaryStrokeWidth = 3;
-  // Doubles boundary - keep inside canvas
-  scene.graphics.lineStyle(boundaryStrokeWidth, 0x000000);
+  scene.graphics.lineStyle(3, 0x000000);
   scene.graphics.strokeRect(
-    toPx(COURT.sideline_left_doubles) + boundaryStrokeWidth/2,
-    toPx(COURT.baseline_top) + boundaryStrokeWidth/2,
-    toPx(COURT.width_doubles) - boundaryStrokeWidth,
-    toPx(COURT.length) - boundaryStrokeWidth
+    toPx(COURT.sideline_left_doubles), toPx(COURT.baseline_top),
+    toPx(COURT.width_doubles), toPx(COURT.length) - toPx(0)
   );
-  // Singles court boundary
-  scene.graphics.lineStyle(boundaryStrokeWidth, 0x1976d2);
+  scene.graphics.lineStyle(3, 0x1976d2);
   scene.graphics.strokeRect(
-    toPx(COURT.sideline_left_singles) + boundaryStrokeWidth/2,
-    toPx(COURT.baseline_top) + boundaryStrokeWidth/2,
-    toPx(COURT.width_singles) - boundaryStrokeWidth,
-    toPx(COURT.length) - boundaryStrokeWidth
+    toPx(COURT.sideline_left_singles), toPx(COURT.baseline_top),
+    toPx(COURT.width_singles), toPx(COURT.length) - toPx(0)
   );
   getServiceCourts().forEach(sc => {
     scene.graphics.fillStyle(0xe3f2fd, 0.3);
@@ -26,3 +229,149 @@ function restartCourt() {
     );
   });
 }
+
+// Highlight helper
+function highlightObject(obj, active) {
+  if (greyedOutIds.has(obj.data.get('id'))) {
+    // Greyed out style
+    if (obj.type === 'Line') {
+      obj.setStrokeStyle(10, 0xbdbdbd); // grey
+    } else if (obj.type === 'Rectangle') {
+      obj.setFillStyle(0xbdbdbd, 0.4); // grey, semi-transparent
+    }
+    return;
+  }
+  if (obj.type === 'Line') {
+    if (active) obj.setStrokeStyle(10, 0xff9800);
+    else obj.setStrokeStyle(obj.data.get('id') === 'net' ? 1 : 3, obj.data.get('id') === 'net' ? 0x888888 : 0x1976d2);
+  } else if (obj.type === 'Rectangle') {
+    if (active) obj.setFillStyle(0xff9800, 0.4);
+    else obj.setFillStyle(0xe3f2fd, 0.01);
+  }
+}
+function highlightQuizObject(scene, id) {
+  [...scene.lineObjs, ...scene.serviceObjs].forEach(o => {
+    highlightObject(o, o.data.get('id') === id);
+  });
+}
+
+// Info/feedback UI
+function info(name, desc) {
+  document.getElementById('info').innerHTML = `<h3>${name}</h3><p>${desc}</p>`;
+}
+function feedback(msg) {
+  document.getElementById('info').innerHTML = `<div style="font-weight:bold">${msg}</div>`;
+}
+
+// Interactive element creators
+function createInteractiveLine(scene, line) {
+  const color = line.net ? 0x888888 : 0x1976d2;
+  const width = line.net ? 1 : 3;
+  const x1 = toPx(line.coords[0]), y1 = toPx(line.coords[1]);
+  const x2 = toPx(line.coords[2]), y2 = toPx(line.coords[3]);
+  const obj = scene.add.line(0, 0, x1, y1, x2, y2, color).setLineWidth(width, width).setOrigin(0);
+  let hitArea;
+  if (x1 === x2) {
+    hitArea = new Phaser.Geom.Rectangle(x1 - HIT_SIZE/2, Math.min(y1, y2), HIT_SIZE, Math.abs(y2-y1));
+  } else if (y1 === y2) {
+    hitArea = new Phaser.Geom.Rectangle(Math.min(x1, x2), y1 - HIT_SIZE/2, Math.abs(x2-x1), HIT_SIZE);
+  } else {
+    hitArea = new Phaser.Geom.Rectangle(
+      Math.min(x1,x2) - HIT_SIZE/2, Math.min(y1,y2) - HIT_SIZE/2,
+      Math.abs(x2-x1) + HIT_SIZE, Math.abs(y2-y1) + HIT_SIZE
+    );
+  }
+  obj.setInteractive({ useHandCursor: true, hitArea, hitAreaCallback: Phaser.Geom.Rectangle.Contains });
+  obj.data = new Phaser.Data.DataManager(obj);
+  obj.data.set('name', line.name);
+  obj.data.set('desc', line.desc);
+  obj.data.set('id', line.id);
+  obj.type = 'Line';
+  return obj;
+}
+function createInteractiveRect(scene, area) {
+  const obj = scene.add.rectangle(
+    toPx(area.area.x + area.area.w/2),
+    toPx(area.area.y + area.area.h/2),
+    Math.abs(toPx(area.area.w)),
+    Math.abs(toPx(area.area.h)),
+    0xe3f2fd, 0.01
+  );
+  obj.setInteractive({ useHandCursor: true });
+  obj.data = new Phaser.Data.DataManager(obj);
+  obj.data.set('name', area.name);
+  obj.data.set('desc', area.desc);
+  obj.data.set('id', area.id);
+  obj.type = 'Rectangle';
+  return obj;
+}
+
+// Quiz logic
+function showTeachCourt() {
+  mode = 'teach';
+  score = 0; total = 0; currentQuiz = null;
+  remainingQuizItems = [];
+  greyedOutIds.clear();
+  restartCourt();
+  info('Tap a line or service court to learn its name and purpose.', '');
+  [...scene.lineObjs, ...scene.serviceObjs].forEach(o => highlightObject(o, false));
+}
+function showQuizCourt() {
+  mode = 'quiz';
+  score = 0; total = 0;
+  greyedOutIds.clear();
+  // Build the remaining quiz items list (lines + service courts)
+  remainingQuizItems = [
+    // Exclude net line from quiz items
+    ...getLines().filter(line => line.id !== 'net').map(line => ({...line, type: 'Line'})),
+    ...getServiceCourts().map(area => ({...area, type: 'Rectangle'}))
+  ];
+  restartCourt();
+  nextQuizQuestion(scene);
+}
+function nextQuizQuestion(scene) {
+  // Remove greyed out items from the pool
+  remainingQuizItems = remainingQuizItems.filter(item => !greyedOutIds.has(item.id));
+  if (remainingQuizItems.length === 0) {
+    feedback(`<b>Quiz Complete!</b> You got ${score} out of ${total-1}.`);
+    return;
+  }
+  total++;
+  // Randomly select a quiz item from remaining
+  currentQuiz = Phaser.Utils.Array.GetRandom(remainingQuizItems);
+  feedback(`<b>Which line or area is: <span style="color:#1976d2">${currentQuiz.name}</span>?</b><br><small>Tap on the court to answer.</small>`);
+  highlightQuizObject(scene, null);
+}
+
+// Accept multiple correct answers (by name)
+function isCorrectQuizAnswer(obj, quizItem) {
+  // Accept any item with the same display name and not yet greyed out
+  return obj.data.get('name') === quizItem.name && !greyedOutIds.has(obj.data.get('id'));
+}
+
+// Grey out all items matching the current quiz name
+function greyOutMatchingItems(quizItem) {
+  [...scene.lineObjs, ...scene.serviceObjs].forEach(obj => {
+    if (obj.data.get('name') === quizItem.name) {
+      greyedOutIds.add(obj.data.get('id'));
+      highlightObject(obj, false);
+      obj.disableInteractive();
+    }
+  });
+}
+
+document.getElementById('teachBtn').onclick = () => { showTeachCourt(); };
+document.getElementById('quizBtn').onclick = () => { showQuizCourt(); };
+
+window.addEventListener('resize', () => {
+  createPhaserGame();
+  setTimeout(() => {
+    if (mode === 'teach') showTeachCourt();
+    else showQuizCourt();
+  }, 100);
+});
+
+createPhaserGame();
+</script>
+</body>
+</html>
