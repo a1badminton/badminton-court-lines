@@ -97,80 +97,80 @@ const BadmintonCourtTrainer = () => {
   };
 
   const CourtSVG = ({ interactive = false, highlightArea = null }) => (
-    <svg viewBox="0 0 400 200" className="w-full max-w-2xl border border-gray-300 bg-green-50">
+    <svg viewBox="0 0 200 400" className="w-full max-w-md border border-gray-300 bg-green-50">
       {/* Court background */}
-      <rect x="50" y="25" width="300" height="150" fill="rgba(34, 197, 94, 0.1)" stroke="black" strokeWidth="2"/>
+      <rect x="25" y="50" width="150" height="300" fill="rgba(34, 197, 94, 0.1)" stroke="black" strokeWidth="2"/>
       
-      {/* Doubles sidelines */}
-      <line x1="50" y1="25" x2="50" y2="175" stroke="black" strokeWidth="2"/>
-      <line x1="350" y1="25" x2="350" y2="175" stroke="black" strokeWidth="2"/>
+      {/* Doubles sidelines (top and bottom) */}
+      <line x1="25" y1="50" x2="175" y2="50" stroke="black" strokeWidth="2"/>
+      <line x1="25" y1="350" x2="175" y2="350" stroke="black" strokeWidth="2"/>
       
       {/* Singles sidelines */}
-      <line x1="70" y1="25" x2="70" y2="175" stroke="black" strokeWidth="2"/>
-      <line x1="330" y1="25" x2="330" y2="175" stroke="black" strokeWidth="2"/>
+      <line x1="25" y1="70" x2="175" y2="70" stroke="black" strokeWidth="2"/>
+      <line x1="25" y1="330" x2="175" y2="330" stroke="black" strokeWidth="2"/>
       
       {/* Net */}
-      <line x1="50" y1="100" x2="350" y2="100" stroke="black" strokeWidth="3"/>
+      <line x1="100" y1="50" x2="100" y2="350" stroke="black" strokeWidth="3"/>
       
       {/* Short service lines */}
-      <line x1="70" y1="65" x2="330" y2="65" stroke="black" strokeWidth="2"/>
-      <line x1="70" y1="135" x2="330" y2="135" stroke="black" strokeWidth="2"/>
+      <line x1="65" y1="70" x2="65" y2="330" stroke="black" strokeWidth="2"/>
+      <line x1="135" y1="70" x2="135" y2="330" stroke="black" strokeWidth="2"/>
       
       {/* Long service lines for doubles */}
-      <line x1="50" y1="45" x2="350" y2="45" stroke="black" strokeWidth="2"/>
-      <line x1="50" y1="155" x2="350" y2="155" stroke="black" strokeWidth="2"/>
+      <line x1="45" y1="50" x2="45" y2="350" stroke="black" strokeWidth="2"/>
+      <line x1="155" y1="50" x2="155" y2="350" stroke="black" strokeWidth="2"/>
       
       {/* Center lines */}
-      <line x1="200" y1="65" x2="200" y2="45" stroke="black" strokeWidth="2"/>
-      <line x1="200" y1="135" x2="200" y2="155" stroke="black" strokeWidth="2"/>
+      <line x1="65" y1="200" x2="45" y2="200" stroke="black" strokeWidth="2"/>
+      <line x1="135" y1="200" x2="155" y2="200" stroke="black" strokeWidth="2"/>
 
       {/* Interactive overlays */}
       {interactive && (
         <>
           {/* Singles sidelines */}
-          <rect x="65" y="20" width="10" height="160" fill={highlightArea === 'singles_sideline' ? courtAreas.singles_sideline.color : 'transparent'} 
+          <rect x="20" y="65" width="160" height="10" fill={highlightArea === 'singles_sideline' ? courtAreas.singles_sideline.color : 'transparent'} 
                 onClick={() => handleAreaClick('singles_sideline')} className="cursor-pointer hover:fill-blue-200 transition-colors" />
-          <rect x="325" y="20" width="10" height="160" fill={highlightArea === 'singles_sideline' ? courtAreas.singles_sideline.color : 'transparent'} 
+          <rect x="20" y="325" width="160" height="10" fill={highlightArea === 'singles_sideline' ? courtAreas.singles_sideline.color : 'transparent'} 
                 onClick={() => handleAreaClick('singles_sideline')} className="cursor-pointer hover:fill-blue-200 transition-colors" />
           
           {/* Doubles sidelines */}
-          <rect x="45" y="20" width="10" height="160" fill={highlightArea === 'doubles_sideline' ? courtAreas.doubles_sideline.color : 'transparent'} 
+          <rect x="20" y="45" width="160" height="10" fill={highlightArea === 'doubles_sideline' ? courtAreas.doubles_sideline.color : 'transparent'} 
                 onClick={() => handleAreaClick('doubles_sideline')} className="cursor-pointer hover:fill-green-200 transition-colors" />
-          <rect x="345" y="20" width="10" height="160" fill={highlightArea === 'doubles_sideline' ? courtAreas.doubles_sideline.color : 'transparent'} 
+          <rect x="20" y="345" width="160" height="10" fill={highlightArea === 'doubles_sideline' ? courtAreas.doubles_sideline.color : 'transparent'} 
                 onClick={() => handleAreaClick('doubles_sideline')} className="cursor-pointer hover:fill-green-200 transition-colors" />
           
           {/* Short service lines */}
-          <rect x="65" y="60" width="270" height="10" fill={highlightArea === 'short_service_line' ? courtAreas.short_service_line.color : 'transparent'} 
+          <rect x="60" y="65" width="10" height="270" fill={highlightArea === 'short_service_line' ? courtAreas.short_service_line.color : 'transparent'} 
                 onClick={() => handleAreaClick('short_service_line')} className="cursor-pointer hover:fill-red-200 transition-colors" />
-          <rect x="65" y="130" width="270" height="10" fill={highlightArea === 'short_service_line' ? courtAreas.short_service_line.color : 'transparent'} 
+          <rect x="130" y="65" width="10" height="270" fill={highlightArea === 'short_service_line' ? courtAreas.short_service_line.color : 'transparent'} 
                 onClick={() => handleAreaClick('short_service_line')} className="cursor-pointer hover:fill-red-200 transition-colors" />
           
           {/* Long service lines doubles */}
-          <rect x="45" y="40" width="310" height="10" fill={highlightArea === 'long_service_line_doubles' ? courtAreas.long_service_line_doubles.color : 'transparent'} 
+          <rect x="40" y="45" width="10" height="310" fill={highlightArea === 'long_service_line_doubles' ? courtAreas.long_service_line_doubles.color : 'transparent'} 
                 onClick={() => handleAreaClick('long_service_line_doubles')} className="cursor-pointer hover:fill-amber-200 transition-colors" />
-          <rect x="45" y="150" width="310" height="10" fill={highlightArea === 'long_service_line_doubles' ? courtAreas.long_service_line_doubles.color : 'transparent'} 
+          <rect x="150" y="45" width="10" height="310" fill={highlightArea === 'long_service_line_doubles' ? courtAreas.long_service_line_doubles.color : 'transparent'} 
                 onClick={() => handleAreaClick('long_service_line_doubles')} className="cursor-pointer hover:fill-amber-200 transition-colors" />
           
           {/* Back boundary */}
-          <rect x="45" y="20" width="310" height="10" fill={highlightArea === 'back_boundary' ? courtAreas.back_boundary.color : 'transparent'} 
+          <rect x="20" y="45" width="160" height="10" fill={highlightArea === 'back_boundary' ? courtAreas.back_boundary.color : 'transparent'} 
                 onClick={() => handleAreaClick('back_boundary')} className="cursor-pointer hover:fill-cyan-200 transition-colors" />
-          <rect x="45" y="170" width="310" height="10" fill={highlightArea === 'back_boundary' ? courtAreas.back_boundary.color : 'transparent'} 
+          <rect x="20" y="345" width="160" height="10" fill={highlightArea === 'back_boundary' ? courtAreas.back_boundary.color : 'transparent'} 
                 onClick={() => handleAreaClick('back_boundary')} className="cursor-pointer hover:fill-cyan-200 transition-colors" />
           
           {/* Center lines */}
-          <rect x="195" y="40" width="10" height="30" fill={highlightArea === 'center_line' ? courtAreas.center_line.color : 'transparent'} 
+          <rect x="40" y="195" width="30" height="10" fill={highlightArea === 'center_line' ? courtAreas.center_line.color : 'transparent'} 
                 onClick={() => handleAreaClick('center_line')} className="cursor-pointer hover:fill-pink-200 transition-colors" />
-          <rect x="195" y="130" width="10" height="30" fill={highlightArea === 'center_line' ? courtAreas.center_line.color : 'transparent'} 
+          <rect x="130" y="195" width="30" height="10" fill={highlightArea === 'center_line' ? courtAreas.center_line.color : 'transparent'} 
                 onClick={() => handleAreaClick('center_line')} className="cursor-pointer hover:fill-pink-200 transition-colors" />
           
           {/* Service courts */}
-          <rect x="70" y="45" width="130" height="20" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
+          <rect x="45" y="70" width="20" height="130" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('right_service_court')} className="cursor-pointer hover:fill-green-100 transition-colors" />
-          <rect x="200" y="45" width="130" height="20" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
+          <rect x="45" y="200" width="20" height="130" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('left_service_court')} className="cursor-pointer hover:fill-red-100 transition-colors" />
-          <rect x="70" y="135" width="130" height="20" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
+          <rect x="135" y="70" width="20" height="130" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('left_service_court')} className="cursor-pointer hover:fill-red-100 transition-colors" />
-          <rect x="200" y="135" width="130" height="20" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
+          <rect x="135" y="200" width="20" height="130" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('right_service_court')} className="cursor-pointer hover:fill-green-100 transition-colors" />
         </>
       )}
