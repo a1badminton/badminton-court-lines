@@ -60,15 +60,15 @@ const LINES = [
   // Singles sidelines
   { id:'sideline-left-singles', name:'Left Singles Sideline', desc:'Left boundary for singles.', coords:[COURT.sideline_left_singles, COURT.baseline_top, COURT.sideline_left_singles, COURT.baseline_bottom] },
   { id:'sideline-right-singles', name:'Right Singles Sideline', desc:'Right boundary for singles.', coords:[COURT.sideline_right_singles, COURT.baseline_top, COURT.sideline_right_singles, COURT.baseline_bottom] },
-  // Short service lines
-  { id:'short-service-line-top', name:'Top Short Service Line', desc:'Line 6\'6" (78") from net, top side.', coords:[COURT.sideline_left_singles, COURT.short_service_line_top, COURT.sideline_right_singles, COURT.short_service_line_top] },
-  { id:'short-service-line-bottom', name:'Bottom Short Service Line', desc:'Line 6\'6" (78") from net, bottom side.', coords:[COURT.sideline_left_singles, COURT.short_service_line_bottom, COURT.sideline_right_singles, COURT.short_service_line_bottom] },
+  // Short service lines (full width)
+  { id:'short-service-line-top', name:'Top Short Service Line', desc:'Line 6\'6" (78") from net, top side.', coords:[COURT.sideline_left_doubles, COURT.short_service_line_top, COURT.sideline_right_doubles, COURT.short_service_line_top] },
+  { id:'short-service-line-bottom', name:'Bottom Short Service Line', desc:'Line 6\'6" (78") from net, bottom side.', coords:[COURT.sideline_left_doubles, COURT.short_service_line_bottom, COURT.sideline_right_doubles, COURT.short_service_line_bottom] },
   // Long service lines for doubles
   { id:'long-service-line-doubles-top', name:'Top Long Service Line (Doubles)', desc:'Line 2\'6" (30") in from top baseline for doubles service.', coords:[COURT.sideline_left_doubles, COURT.long_service_line_doubles_top, COURT.sideline_right_doubles, COURT.long_service_line_doubles_top] },
   { id:'long-service-line-doubles-bottom', name:'Bottom Long Service Line (Doubles)', desc:'Line 2\'6" (30") in from bottom baseline for doubles service.', coords:[COURT.sideline_left_doubles, COURT.long_service_line_doubles_bottom, COURT.sideline_right_doubles, COURT.long_service_line_doubles_bottom] },
-  // Center line
-  { id:'center-line-top', name:'Top Center Line', desc:'Divides left and right service courts, top side.', coords:[COURT.center_line_x, COURT.short_service_line_top, COURT.center_line_x, COURT.net_y] },
-  { id:'center-line-bottom', name:'Bottom Center Line', desc:'Divides left and right service courts, bottom side.', coords:[COURT.center_line_x, COURT.net_y, COURT.center_line_x, COURT.short_service_line_bottom] },
+  // Center lines (each side: from short service line to baseline)
+  { id:'center-line-top', name:'Top Center Line', desc:'Divides left and right service courts, top side.', coords:[COURT.center_line_x, COURT.short_service_line_top, COURT.center_line_x, COURT.baseline_top] },
+  { id:'center-line-bottom', name:'Bottom Center Line', desc:'Divides left and right service courts, bottom side.', coords:[COURT.center_line_x, COURT.short_service_line_bottom, COURT.center_line_x, COURT.baseline_bottom] },
   // Net (visual only)
   { id:'net', name:'Net (visual only)', desc:'Net location (not painted in real life).', coords:[COURT.sideline_left_doubles, COURT.net_y, COURT.sideline_right_doubles, COURT.net_y], net:true }
 ];
