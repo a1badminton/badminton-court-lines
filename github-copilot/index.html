@@ -116,8 +116,6 @@ function toPx(inches) {
   return COURT.margin + inches * COURT.scale;
 }
 const HIT_SIZE = 12;
-
-// Correct line definitions (no left/right/top/bottom qualifiers)
 function getLines() {
   return [
     { id:'baseline', name:'Baseline', desc:'Back boundary (baseline) at each end of court.', coords:[COURT.sideline_left_doubles, COURT.baseline_top, COURT.sideline_right_doubles, COURT.baseline_top] },
@@ -135,8 +133,6 @@ function getLines() {
     { id:'net', name:'Net (visual only)', desc:'Net location (not painted in real life).', coords:[COURT.sideline_left_doubles, COURT.net_y, COURT.sideline_right_doubles, COURT.net_y], net:true }
   ];
 }
-
-// Service court definitions: only "Left Service Court" and "Right Service Court", names are duplicated as per player perspective
 function getServiceCourts() {
   return [
     // Upper half (above net)
@@ -167,22 +163,17 @@ function getServiceCourts() {
     }},
   ];
 }
-
-// Quiz/teach state
 let mode = 'teach';
 let currentQuiz = null;
 let score = 0;
-let total = 0;
 let quizTotal = 0;
 let game, scene;
 let lastHoveredObj = null;
-let remainingQuizItems = []; // for quiz mode
-let greyedOutIds = new Set(); // IDs of greyed-out items
-
+let remainingQuizItems = [];
+let greyedOutIds = new Set();
 // For modal
 let userName = '';
 let userBirthdate = '';
-
 function createPhaserGame() {
   if (game) { game.destroy(true); }
   COURT = getCourtDimensions();
@@ -198,16 +189,12 @@ function createPhaserGame() {
   };
   game = new Phaser.Game(config);
 }
-
 function create() {
   scene = this;
   this.graphics = this.add.graphics();
   restartCourt();
-
   this.lineObjs = getLines().map(line => createInteractiveLine(scene, line));
   this.serviceObjs = getServiceCourts().map(area => createInteractiveRect(scene, area));
-
-  // Only one element highlighted at a time for hover
   lastHoveredObj = null;
   this.input.on('pointermove', function (pointer) {
     let foundObj = null;
@@ -236,11 +223,8 @@ function create() {
       if (mode === 'teach') info('Tap a line or service court to learn its name and purpose.', '');
     }
   });
-
-  // Click/tap logic
   this.input.on('gameobjectdown', (pointer, obj) => {
-    if (greyedOutIds.has(obj.data.get('id'))) return; // Ignore greyed out items
-
+    if (greyedOutIds.has(obj.data.get('id'))) return;
     if (mode === 'teach') {
       info(obj.data.get('name'), obj.data.get('desc'));
       highlightObject(obj, true);
@@ -256,26 +240,19 @@ function create() {
       setTimeout(() => nextQuizQuestion(scene), 1200);
     }
   });
-
   showTeachCourt();
 }
-
-// Only draw the blue singles court boundary (no black underneath)
 function restartCourt() {
   scene.graphics.clear();
   const boundaryStrokeWidth = 3;
-  // Singles court boundary only
   scene.graphics.lineStyle(boundaryStrokeWidth, 0x1976d2);
 }
-
-// Highlight helper
 function highlightObject(obj, active) {
   if (greyedOutIds.has(obj.data.get('id'))) {
-    // Greyed out style
     if (obj.type === 'Line') {
-      obj.setStrokeStyle(10, 0xbdbdbd); // grey
+      obj.setStrokeStyle(10, 0xbdbdbd);
     } else if (obj.type === 'Rectangle') {
-      obj.setFillStyle(0xbdbdbd, 0.4); // grey, semi-transparent
+      obj.setFillStyle(0xbdbdbd, 0.4);
     }
     return;
   }
@@ -292,16 +269,12 @@ function highlightQuizObject(scene, id) {
     highlightObject(o, o.data.get('id') === id);
   });
 }
-
-// Info/feedback UI
 function info(name, desc) {
   document.getElementById('info').innerHTML = `<h3>${name}</h3><p>${desc}</p>`;
 }
 function feedback(msg) {
   document.getElementById('info').innerHTML = `<div style="font-weight:bold">${msg}</div>`;
 }
-
-// Interactive element creators
 function createInteractiveLine(scene, line) {
   const color = line.net ? 0x888888 : 0x1976d2;
   const width = line.net ? 1 : 3;
@@ -343,11 +316,9 @@ function createInteractiveRect(scene, area) {
   obj.type = 'Rectangle';
   return obj;
 }
-
-// Quiz logic
 function showTeachCourt() {
   mode = 'teach';
-  score = 0; total = 0; quizTotal = 0; currentQuiz = null;
+  score = 0; quizTotal = 0; currentQuiz = null;
   remainingQuizItems = [];
   greyedOutIds.clear();
   restartCourt();
@@ -356,13 +327,13 @@ function showTeachCourt() {
 }
 function showQuizCourt() {
   mode = 'quiz';
-  score = 0; total = 0;
+  score = 0;
   greyedOutIds.clear();
   remainingQuizItems = [
     ...getLines().filter(line => line.id !== 'net').map(line => ({...line, type: 'Line'})),
     ...getServiceCourts().map(area => ({...area, type: 'Rectangle'}))
   ];
-  quizTotal = remainingQuizItems.length; // Store initial total
+  quizTotal = remainingQuizItems.length;
   restartCourt();
   nextQuizQuestion(scene);
 }
@@ -375,19 +346,13 @@ function nextQuizQuestion(scene) {
     `);
     return;
   }
-  total++;
   currentQuiz = Phaser.Utils.Array.GetRandom(remainingQuizItems);
   feedback(`<b>Which line or area is: <span style="color:#1976d2">${currentQuiz.name}</span>?</b><br><small>Tap on the court to answer.</small>`);
   highlightQuizObject(scene, null);
 }
-
-// Accept multiple correct answers (by name)
 function isCorrectQuizAnswer(obj, quizItem) {
-  // Accept any item with the same display name and not yet greyed out
   return obj.data.get('name') === quizItem.name && !greyedOutIds.has(obj.data.get('id'));
 }
-
-// Grey out all items matching the current quiz name
 function greyOutMatchingItems(quizItem) {
   [...scene.lineObjs, ...scene.serviceObjs].forEach(obj => {
     if (obj.data.get('name') === quizItem.name) {
@@ -397,8 +362,6 @@ function greyOutMatchingItems(quizItem) {
     }
   });
 }
-
-// Modal logic
 function showModal() {
   document.getElementById('modal-bg').style.display = "flex";
   document.getElementById('user-name').value = "";
@@ -412,8 +375,6 @@ document.getElementById('quizBtn').onclick = () => {
   showModal();
 };
 document.getElementById('teachBtn').onclick = () => { showTeachCourt(); };
-
-// Modal event listeners
 document.getElementById('modal-cancel').onclick = function() {
   hideModal();
 };
@@ -424,7 +385,6 @@ document.getElementById('user-form').onsubmit = function(e) {
   hideModal();
   showQuizCourt();
 };
-
 window.addEventListener('resize', () => {
   createPhaserGame();
   setTimeout(() => {
@@ -432,7 +392,6 @@ window.addEventListener('resize', () => {
     else showQuizCourt();
   }, 100);
 });
-
 createPhaserGame();
 </script>
 </body>
