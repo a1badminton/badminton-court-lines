@@ -117,8 +117,8 @@ const BadmintonCourtTrainer = () => {
       <line x1="65" y1="285" x2="235" y2="285" stroke="black" strokeWidth="2"/>
       
       {/* Long service lines for doubles (running width, farther from net) */}
-      <line x1="50" y1="102" x2="250" y2="102" stroke="black" strokeWidth="2"/>
-      <line x1="50" y1="338" x2="250" y2="338" stroke="black" strokeWidth="2"/>
+      <line x1="50" y1="75" x2="250" y2="75" stroke="black" strokeWidth="2"/>
+      <line x1="50" y1="365" x2="250" y2="365" stroke="black" strokeWidth="2"/>
       
       {/* Back boundary lines (at the very ends) */}
       <line x1="50" y1="50" x2="250" y2="50" stroke="black" strokeWidth="2"/>
@@ -150,9 +150,9 @@ const BadmintonCourtTrainer = () => {
                 onClick={() => handleAreaClick('short_service_line')} className="cursor-pointer hover:fill-red-200 transition-colors" />
           
           {/* Long service lines doubles (horizontal, farther from net) */}
-          <rect x="45" y="97" width="210" height="10" fill={highlightArea === 'long_service_line_doubles' ? courtAreas.long_service_line_doubles.color : 'transparent'} 
+          <rect x="45" y="70" width="210" height="10" fill={highlightArea === 'long_service_line_doubles' ? courtAreas.long_service_line_doubles.color : 'transparent'} 
                 onClick={() => handleAreaClick('long_service_line_doubles')} className="cursor-pointer hover:fill-amber-200 transition-colors" />
-          <rect x="45" y="333" width="210" height="10" fill={highlightArea === 'long_service_line_doubles' ? courtAreas.long_service_line_doubles.color : 'transparent'} 
+          <rect x="45" y="360" width="210" height="10" fill={highlightArea === 'long_service_line_doubles' ? courtAreas.long_service_line_doubles.color : 'transparent'} 
                 onClick={() => handleAreaClick('long_service_line_doubles')} className="cursor-pointer hover:fill-amber-200 transition-colors" />
           
           {/* Back boundary lines (at very top and bottom) */}
@@ -169,16 +169,16 @@ const BadmintonCourtTrainer = () => {
           
           {/* Service courts */}
           {/* Top half - right service court (from server's perspective) */}
-          <rect x="65" y="102" width="85" height="53" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
+          <rect x="65" y="75" width="85" height="80" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('right_service_court')} className="cursor-pointer hover:fill-green-100 transition-colors" />
           {/* Top half - left service court */}
-          <rect x="150" y="102" width="85" height="53" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
+          <rect x="150" y="75" width="85" height="80" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('left_service_court')} className="cursor-pointer hover:fill-red-100 transition-colors" />
           {/* Bottom half - left service court */}
-          <rect x="65" y="285" width="85" height="53" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
+          <rect x="65" y="285" width="85" height="80" fill={highlightArea === 'left_service_court' ? courtAreas.left_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('left_service_court')} className="cursor-pointer hover:fill-red-100 transition-colors" />
           {/* Bottom half - right service court */}
-          <rect x="150" y="285" width="85" height="53" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
+          <rect x="150" y="285" width="85" height="80" fill={highlightArea === 'right_service_court' ? courtAreas.right_service_court.color : 'transparent'} 
                 onClick={() => handleAreaClick('right_service_court')} className="cursor-pointer hover:fill-green-100 transition-colors" />
         </>
       )}
