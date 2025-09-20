@@ -318,7 +318,10 @@ function showTeachCourt() {
   greyedOutIds.clear();
   restartCourt();
   info('Tap a line or service court to learn its name and purpose.', '');
-  [...scene.lineObjs, ...scene.serviceObjs].forEach(o => highlightObject(o, false));
+  [...scene.lineObjs, ...scene.serviceObjs].forEach(o => {
+    o.setInteractive({ useHandCursor: true }); // <-- Re-enable interactivity
+    highlightObject(o, false);
+  });
 }
 function showQuizCourt() {
   mode = 'quiz';
