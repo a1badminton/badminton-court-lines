@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Badminton Court Trainer (Quiz, Grey-out, Multi-Correct)</title>
+  <title>Badminton Court Trainer (Quiz, Grey-out, Multi-Correct, Net Line Excluded)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <style>
@@ -16,7 +16,7 @@
 </head>
 <body>
   <header style="padding:1em;background:#1976d2;color:white;text-align:center;font-size:1.5em;">
-    Badminton Court Trainer (Quiz, Grey-out, Multi-Correct)
+    Badminton Court Trainer (Quiz, Grey-out, Multi-Correct, Net Line Excluded)
   </header>
   <div id="controls">
     <button id="teachBtn">Teach Mode</button>
@@ -286,6 +286,7 @@ function createInteractiveLine(scene, line) {
   obj.data.set('name', line.name);
   obj.data.set('desc', line.desc);
   obj.data.set('id', line.id);
+  obj.type = 'Line';
   return obj;
 }
 function createInteractiveRect(scene, area) {
@@ -301,6 +302,7 @@ function createInteractiveRect(scene, area) {
   obj.data.set('name', area.name);
   obj.data.set('desc', area.desc);
   obj.data.set('id', area.id);
+  obj.type = 'Rectangle';
   return obj;
 }
 
@@ -320,7 +322,8 @@ function showQuizCourt() {
   greyedOutIds.clear();
   // Build the remaining quiz items list (lines + service courts)
   remainingQuizItems = [
-    ...getLines().map(line => ({...line, type: 'Line'})),
+    // Exclude net line from quiz items
+    ...getLines().filter(line => line.id !== 'net').map(line => ({...line, type: 'Line'})),
     ...getServiceCourts().map(area => ({...area, type: 'Rectangle'}))
   ];
   restartCourt();
@@ -330,7 +333,7 @@ function nextQuizQuestion(scene) {
   // Remove greyed out items from the pool
   remainingQuizItems = remainingQuizItems.filter(item => !greyedOutIds.has(item.id));
   if (remainingQuizItems.length === 0) {
-    feedback(`<b>Quiz Complete!</b> You got ${score} out of ${total}.`);
+    feedback(`<b>Quiz Complete!</b> You got ${score} out of ${total-1}.`);
     return;
   }
   total++;
