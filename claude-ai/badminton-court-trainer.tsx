@@ -109,8 +109,8 @@ const BadmintonCourtTrainer = () => {
       <line x1="65" y1="20" x2="65" y2="460" stroke="black" strokeWidth="2"/>
       <line x1="235" y1="20" x2="235" y2="460" stroke="black" strokeWidth="2"/>
       
-      {/* Net (running width of court) */}
-      <line x1="50" y1="240" x2="250" y2="240" stroke="black" strokeWidth="3"/>
+      {/* Net (running width of court) - imaginary line */}
+      <line x1="50" y1="240" x2="250" y2="240" stroke="rgba(0, 0, 0, 0.3)" strokeWidth="1" strokeDasharray="5,5"/>
       
       {/* Short service lines (running width, 65 units from net) */}
       <line x1="50" y1="175" x2="250" y2="175" stroke="black" strokeWidth="2"/>
