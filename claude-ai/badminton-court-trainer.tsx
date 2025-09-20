@@ -827,7 +827,7 @@
         function updateQuizDisplay() {
             document.getElementById('current-question').textContent = currentQuestion + 1;
             document.getElementById('total-questions').textContent = quizQuestions.length;
-            document.getElementById('total-questions-score').textContent = quizQuestions.length;
+            document.getElementById('total-questions-score').textContent = currentQuestion + 1; // Questions presented so far
             document.getElementById('current-score').textContent = quizScore;
             document.getElementById('question-text').textContent = quizQuestions[currentQuestion].question;
         }
