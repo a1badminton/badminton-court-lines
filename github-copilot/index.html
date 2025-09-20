@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Badminton Court Trainer (Phaser, Imperial Units, Responsive)</title>
+  <title>Badminton Court Trainer (Phaser, Imperial Units, Responsive, Reliable Hit Areas)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <style>
@@ -16,7 +16,7 @@
 </head>
 <body>
   <header style="padding:1em;background:#1976d2;color:white;text-align:center;font-size:1.5em;">
-    Badminton Court Trainer (Phaser, Imperial Units, Responsive)
+    Badminton Court Trainer (Phaser, Imperial Units, Responsive, Reliable Hit Areas)
   </header>
   <div id="controls">
     <button id="teachBtn">Teach Mode</button>
@@ -26,9 +26,7 @@
   <div id="phaser"></div>
 <script>
 function getResponsiveScale() {
-  // Use 90% of window height minus header/controls/info (estimate ~200px)
   const availableHeight = Math.max(window.innerHeight - 220, 350);
-  // Court is 528 inches tall
   return availableHeight / 528;
 }
 
@@ -75,6 +73,8 @@ function getCourtDimensions() {
 function toPx(inches) {
   return COURT.margin + inches * COURT.scale;
 }
+
+const HIT_SIZE = 12; // pixels
 
 const getLines = () => [
   { id:'baseline-top', name:'Top Baseline', desc:'Back boundary (baseline), top of court.', coords:[COURT.sideline_left_doubles, COURT.baseline_top, COURT.sideline_right_doubles, COURT.baseline_top] },
@@ -152,16 +152,28 @@ function create() {
   this.lineObjs = getLines().map(line => {
     const color = line.net ? 0x888888 : 0x1976d2;
     const width = line.net ? 1 : 3;
-    const obj = this.add.line(0, 0,
-      toPx(line.coords[0]), toPx(line.coords[1]),
-      toPx(line.coords[2]), toPx(line.coords[3]),
-      color
-    ).setLineWidth(width, width).setOrigin(0);
+    const x1 = toPx(line.coords[0]), y1 = toPx(line.coords[1]);
+    const x2 = toPx(line.coords[2]), y2 = toPx(line.coords[3]);
+    const obj = this.add.line(0, 0, x1, y1, x2, y2, color)
+      .setLineWidth(width, width).setOrigin(0);
 
-    obj.setInteractive({ useHandCursor: true, hitArea: new Phaser.Geom.Line(
-      toPx(line.coords[0]), toPx(line.coords[1]),
-      toPx(line.coords[2]), toPx(line.coords[3])
-    ), hitAreaCallback: Phaser.Geom.Line.Contains });
+    // Larger hit area: rectangle
+    let hitArea;
+    if (x1 === x2) {
+      // Vertical line
+      hitArea = new Phaser.Geom.Rectangle(x1 - HIT_SIZE/2, Math.min(y1, y2), HIT_SIZE, Math.abs(y2-y1));
+    } else if (y1 === y2) {
+      // Horizontal line
+      hitArea = new Phaser.Geom.Rectangle(Math.min(x1, x2), y1 - HIT_SIZE/2, Math.abs(x2-x1), HIT_SIZE);
+    } else {
+      // Diagonal (not expected here, but robust)
+      hitArea = new Phaser.Geom.Rectangle(
+        Math.min(x1,x2) - HIT_SIZE/2, Math.min(y1,y2) - HIT_SIZE/2,
+        Math.abs(x2-x1) + HIT_SIZE, Math.abs(y2-y1) + HIT_SIZE
+      );
+    }
+    obj.setInteractive({ useHandCursor: true, hitArea, hitAreaCallback: Phaser.Geom.Rectangle.Contains });
+
     obj.data = new Phaser.Data.DataManager(obj);
     obj.data.set('name', line.name);
     obj.data.set('desc', line.desc);
@@ -189,7 +201,7 @@ function create() {
     let highlighted = false;
     [...scene.lineObjs, ...scene.serviceObjs].forEach(obj => {
       if (obj.input && obj.input.enabled &&
-        ((obj.type === 'Line' && Phaser.Geom.Line.Contains(obj.input.hitArea, pointer.x, pointer.y)) ||
+        ((obj.type === 'Line' && Phaser.Geom.Rectangle.Contains(obj.input.hitArea, pointer.x, pointer.y)) ||
          (obj.type === 'Rectangle' && Phaser.Geom.Rectangle.Contains(obj.input.hitArea, pointer.x, pointer.y)))
       ) {
         highlightObject(obj, true);
