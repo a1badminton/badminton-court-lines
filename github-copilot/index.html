@@ -24,7 +24,6 @@
   </div>
   <div id="info"></div>
   <div id="phaser"></div>
-
 <script>
 const COURT = {
   scale: 1.5, // scale inches to pixels
@@ -39,10 +38,10 @@ const COURT = {
   sideline_right_doubles: 240,
   sideline_left_singles: 18, // (240-204)/2
   sideline_right_singles: 222, // 240-18
-  short_service_line_top: 264 - 78, // 186
-  short_service_line_bottom: 264 + 78, // 342
+  short_service_line_top: 186, // 264 - 78
+  short_service_line_bottom: 342, // 264 + 78
   long_service_line_doubles_top: 30, // 2'6" from top
-  long_service_line_doubles_bottom: 528 - 30, // 498
+  long_service_line_doubles_bottom: 498, // 528 - 30
   center_line_x: 120, // half doubles width
 };
 
@@ -73,18 +72,31 @@ const LINES = [
   { id:'net', name:'Net (visual only)', desc:'Net location (not painted in real life).', coords:[COURT.sideline_left_doubles, COURT.net_y, COURT.sideline_right_doubles, COURT.net_y], net:true }
 ];
 
+// Service courts: between short service line and long service line for doubles (not between net and short service line)
 const SERVICE_COURTS = [
-  { id:'top-left-service', name:'Top Left Service Court', desc:'Left half, in front of top short service line.', area:{
-    x:COURT.sideline_left_singles, y:COURT.short_service_line_top, w:COURT.center_line_x-COURT.sideline_left_singles, h:COURT.net_y-COURT.short_service_line_top
+  { id:'top-left-service', name:'Top Left Service Court', desc:'Left half, between top short service and top long service lines.', area:{
+    x:COURT.sideline_left_singles, 
+    y:COURT.short_service_line_top, 
+    w:COURT.center_line_x-COURT.sideline_left_singles, 
+    h:COURT.long_service_line_doubles_top-COURT.short_service_line_top
   }},
-  { id:'top-right-service', name:'Top Right Service Court', desc:'Right half, in front of top short service line.', area:{
-    x:COURT.center_line_x, y:COURT.short_service_line_top, w:COURT.sideline_right_singles-COURT.center_line_x, h:COURT.net_y-COURT.short_service_line_top
+  { id:'top-right-service', name:'Top Right Service Court', desc:'Right half, between top short service and top long service lines.', area:{
+    x:COURT.center_line_x, 
+    y:COURT.short_service_line_top, 
+    w:COURT.sideline_right_singles-COURT.center_line_x, 
+    h:COURT.long_service_line_doubles_top-COURT.short_service_line_top
   }},
-  { id:'bottom-left-service', name:'Bottom Left Service Court', desc:'Left half, behind bottom short service line.', area:{
-    x:COURT.sideline_left_singles, y:COURT.net_y, w:COURT.center_line_x-COURT.sideline_left_singles, h:COURT.short_service_line_bottom-COURT.net_y
+  { id:'bottom-left-service', name:'Bottom Left Service Court', desc:'Left half, between bottom short service and bottom long service lines.', area:{
+    x:COURT.sideline_left_singles, 
+    y:COURT.long_service_line_doubles_bottom, 
+    w:COURT.center_line_x-COURT.sideline_left_singles, 
+    h:COURT.short_service_line_bottom-COURT.long_service_line_doubles_bottom
   }},
-  { id:'bottom-right-service', name:'Bottom Right Service Court', desc:'Right half, behind bottom short service line.', area:{
-    x:COURT.center_line_x, y:COURT.net_y, w:COURT.sideline_right_singles-COURT.center_line_x, h:COURT.short_service_line_bottom-COURT.net_y
+  { id:'bottom-right-service', name:'Bottom Right Service Court', desc:'Right half, between bottom short service and bottom long service lines.', area:{
+    x:COURT.center_line_x, 
+    y:COURT.long_service_line_doubles_bottom, 
+    w:COURT.sideline_right_singles-COURT.center_line_x, 
+    h:COURT.short_service_line_bottom-COURT.long_service_line_doubles_bottom
   }}
 ];
 
@@ -112,28 +124,62 @@ let game, scene;
 function create() {
   scene = this;
   this.graphics = this.add.graphics();
-  this.lineObjs = [];
-  this.serviceObjs = [];
   restartCourt();
 
-  // Hover feedback for lines
+  // Interactive overlays for lines/areas
+  this.lineObjs = LINES.map(line => {
+    const color = line.net ? 0x888888 : 0x1976d2;
+    const width = line.net ? 2 : 6;
+    const obj = this.add.line(0, 0,
+      toPx(line.coords[0]), toPx(line.coords[1]),
+      toPx(line.coords[2]), toPx(line.coords[3]),
+      color
+    ).setLineWidth(width, width).setOrigin(0);
+
+    obj.setInteractive({ useHandCursor: true, hitArea: new Phaser.Geom.Line(
+      toPx(line.coords[0]), toPx(line.coords[1]),
+      toPx(line.coords[2]), toPx(line.coords[3])
+    ), hitAreaCallback: Phaser.Geom.Line.Contains });
+    obj.data = new Phaser.Data.DataManager(obj);
+    obj.data.set('name', line.name);
+    obj.data.set('desc', line.desc);
+    obj.data.set('id', line.id);
+    return obj;
+  });
+
+  this.serviceObjs = SERVICE_COURTS.map(area => {
+    const obj = this.add.rectangle(
+      toPx(area.area.x + area.area.w/2),
+      toPx(area.area.y + area.area.h/2),
+      Math.abs(toPx(area.area.w)),
+      Math.abs(toPx(area.area.h)),
+      0xe3f2fd, 0.01
+    );
+    obj.setInteractive({ useHandCursor: true });
+    obj.data = new Phaser.Data.DataManager(obj);
+    obj.data.set('name', area.name);
+    obj.data.set('desc', area.desc);
+    obj.data.set('id', area.id);
+    return obj;
+  });
+
+  // Visual feedback (hover/click)
   this.input.on('pointermove', function (pointer) {
-    let found = false;
+    let highlighted = false;
     [...scene.lineObjs, ...scene.serviceObjs].forEach(obj => {
-      if (obj.input && obj.input.enabled && obj.input.hitArea && obj.input.hitAreaCallback &&
-          obj.input.hitAreaCallback(obj.input.hitArea, pointer.x, pointer.y)) {
-        if (!obj.data.get('hovered')) {
-          obj.data.set('hovered', true);
-          highlightObject(obj, true);
-        }
-        found = true;
-      } else if (obj.data.get('hovered')) {
-        obj.data.set('hovered', false);
+      if (obj.input && obj.input.enabled &&
+        ((obj.type === 'Line' && Phaser.Geom.Line.Contains(obj.input.hitArea, pointer.x, pointer.y)) ||
+         (obj.type === 'Rectangle' && Phaser.Geom.Rectangle.Contains(obj.input.hitArea, pointer.x, pointer.y)))
+      ) {
+        highlightObject(obj, true);
+        highlighted = true;
+      } else {
         highlightObject(obj, false);
       }
     });
-    if (!found) {
-      restartCourt(); // Remove all highlights if nothing hovered
+    if (!highlighted) {
+      // Remove info if not hovering any object
+      if (mode === 'teach') info('Tap a line or service court to learn its name and purpose.', '');
     }
   });
 
@@ -156,12 +202,6 @@ function create() {
 
 function restartCourt() {
   scene.graphics.clear();
-  drawCourt();
-  makeInteractiveLines();
-  makeInteractiveServiceCourts();
-}
-
-function drawCourt() {
   // Outer doubles boundary
   scene.graphics.lineStyle(4, 0x000000);
   scene.graphics.strokeRect(
@@ -179,52 +219,8 @@ function drawCourt() {
     scene.graphics.fillStyle(0xe3f2fd, 0.3);
     scene.graphics.fillRect(
       toPx(sc.area.x), toPx(sc.area.y),
-      toPx(sc.area.w), toPx(sc.area.h)
+      Math.abs(toPx(sc.area.w)), Math.abs(toPx(sc.area.h))
     );
-  });
-}
-
-function makeInteractiveLines() {
-  scene.lineObjs.forEach(obj => obj.destroy());
-  scene.lineObjs = LINES.map(line => {
-    const color = line.net ? 0x888888 : 0x1976d2;
-    const width = line.net ? 2 : 6;
-    const obj = scene.add.line(0, 0,
-      toPx(line.coords[0]), toPx(line.coords[1]),
-      toPx(line.coords[2]), toPx(line.coords[3]),
-      color
-    ).setLineWidth(width, width).setOrigin(0);
-
-    obj.setInteractive({ useHandCursor: true, hitArea: new Phaser.Geom.Line(
-      toPx(line.coords[0]), toPx(line.coords[1]),
-      toPx(line.coords[2]), toPx(line.coords[3])
-    ), hitAreaCallback: Phaser.Geom.Line.Contains });
-    obj.data = new Phaser.Data.DataManager(obj);
-    obj.data.set('name', line.name);
-    obj.data.set('desc', line.desc);
-    obj.data.set('id', line.id);
-    obj.data.set('hovered', false);
-    return obj;
-  });
-}
-
-function makeInteractiveServiceCourts() {
-  scene.serviceObjs.forEach(obj => obj.destroy());
-  scene.serviceObjs = SERVICE_COURTS.map(area => {
-    const obj = scene.add.rectangle(
-      toPx(area.area.x + area.area.w/2),
-      toPx(area.area.y + area.area.h/2),
-      toPx(area.area.w),
-      toPx(area.area.h),
-      0xe3f2fd, 0.01
-    );
-    obj.setInteractive({ useHandCursor: true });
-    obj.data = new Phaser.Data.DataManager(obj);
-    obj.data.set('name', area.name);
-    obj.data.set('desc', area.desc);
-    obj.data.set('id', area.id);
-    obj.data.set('hovered', false);
-    return obj;
   });
 }
 
@@ -234,20 +230,18 @@ function info(name, desc) {
 function feedback(msg) {
   document.getElementById('info').innerHTML = `<div style="font-weight:bold">${msg}</div>`;
 }
-function highlightObject(obj, hover) {
-  restartCourt();
+function highlightObject(obj, active) {
   if (obj.type === 'Line') {
-    if (hover) obj.setStrokeStyle(16, 0xff9800);
+    if (active) obj.setStrokeStyle(16, 0xff9800);
     else obj.setStrokeStyle(obj.data.get('id') === 'net' ? 2 : 6, obj.data.get('id') === 'net' ? 0x888888 : 0x1976d2);
   } else if (obj.type === 'Rectangle') {
-    if (hover) obj.setFillStyle(0xff9800, 0.4);
+    if (active) obj.setFillStyle(0xff9800, 0.4);
     else obj.setFillStyle(0xe3f2fd, 0.01);
   }
 }
 function highlightQuizObject(id) {
-  restartCourt();
   [...scene.lineObjs, ...scene.serviceObjs].forEach(o => {
-    if (o.data.get('id') === id) highlightObject(o, true);
+    highlightObject(o, o.data.get('id') === id);
   });
 }
 
@@ -256,6 +250,8 @@ function showTeachCourt() {
   score = 0; total = 0; currentQuiz = null;
   restartCourt();
   info('Tap a line or service court to learn its name and purpose.', '');
+  // Remove quiz highlights
+  [...scene.lineObjs, ...scene.serviceObjs].forEach(o => highlightObject(o, false));
 }
 function showQuizCourt() {
   mode = 'quiz';
@@ -276,7 +272,6 @@ document.getElementById('quizBtn').onclick = () => { scene.showQuizCourt(); };
 
 // Start game
 game = new Phaser.Game(config);
-
 </script>
 </body>
 </html>
