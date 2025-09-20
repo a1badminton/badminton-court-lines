@@ -764,4 +764,111 @@
         function showAreaInfo(areaId) {
             const area = courtAreas[areaId];
             document.getElementById('area-name').textContent = area.name;
-            document.getElementByI
+            document.getElementById('area-description').textContent = area.description;
+            document.getElementById('area-info').style.display = 'block';
+            
+            // Update button states
+            document.querySelectorAll('.area-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector(`[data-area="${areaId}"]`).classList.add('selected');
+        }
+
+        function generateAreaButtons() {
+            const container = document.getElementById('area-buttons');
+            container.innerHTML = '';
+            
+            Object.entries(courtAreas).forEach(([key, area]) => {
+                const button = document.createElement('button');
+                button.className = 'area-button';
+                button.setAttribute('data-area', key);
+                button.innerHTML = `
+                    <span class="color-indicator" style="background-color: ${area.color.replace('0.3', '0.8').replace('0.2', '0.8')};"></span>
+                    <span style="font-size: 14px; font-weight: 500;">${area.name}</span>
+                `;
+                button.addEventListener('click', () => {
+                    selectedArea = key;
+                    showAreaInfo(key);
+                    generateCourtSVG('learn-court', true);
+                });
+                container.appendChild(button);
+            });
+        }
+
+        function updateQuizDisplay() {
+            document.getElementById('current-question').textContent = currentQuestion + 1;
+            document.getElementById('total-questions').textContent = quizQuestions.length;
+            document.getElementById('total-questions-score').textContent = quizQuestions.length;
+            document.getElementById('current-score').textContent = quizScore;
+            document.getElementById('question-text').textContent = quizQuestions[currentQuestion].question;
+        }
+
+        function showResultModal(correct, correctAnswerName) {
+            const modal = document.getElementById('result-modal');
+            const content = document.getElementById('result-content');
+            const icon = document.getElementById('result-icon');
+            const title = document.getElementById('result-title');
+            const description = document.getElementById('result-description');
+            
+            if (correct) {
+                content.className = 'result-content correct';
+                icon.textContent = '✓';
+                icon.className = 'result-icon correct';
+                title.textContent = 'Correct!';
+            } else {
+                content.className = 'result-content incorrect';
+                icon.textContent = '✗';
+                icon.className = 'result-icon incorrect';
+                title.textContent = 'Incorrect';
+            }
+            
+            description.textContent = correctAnswerName;
+            modal.classList.add('show');
+        }
+
+        function hideResultModal() {
+            document.getElementById('result-modal').classList.remove('show');
+        }
+
+        // Form Validation
+        function updateStartButton() {
+            const nameInput = document.getElementById('user-name-input');
+            const dobInput = document.getElementById('user-dob-input');
+            const startBtn = document.getElementById('start-quiz-btn');
+            
+            if (nameInput.value.trim() && dobInput.value) {
+                startBtn.classList.remove('btn-disabled');
+                startBtn.disabled = false;
+            } else {
+                startBtn.classList.add('btn-disabled');
+                startBtn.disabled = true;
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('user-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nameInput = document.getElementById('user-name-input');
+            const dobInput = document.getElementById('user-dob-input');
+            
+            if (nameInput.value.trim() && dobInput.value) {
+                userName = nameInput.value.trim();
+                userDOB = dobInput.value;
+                
+                closeQuizModal();
+                startQuiz();
+            }
+        });
+
+        document.getElementById('user-name-input').addEventListener('input', updateStartButton);
+        document.getElementById('user-dob-input').addEventListener('input', updateStartButton);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            generateCourtSVG('menu-screen .court-svg', false);
+            updateStartButton();
+        });
+    </script>
+</body>
+</html>
