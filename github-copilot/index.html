@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Badminton Court Trainer (Phaser, Imperial Units, Responsive, Correct Names)</title>
+  <title>Badminton Court Trainer (Phaser, Quiz, Correct Service Court Naming, Fixed Hover)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <style>
@@ -16,7 +16,7 @@
 </head>
 <body>
   <header style="padding:1em;background:#1976d2;color:white;text-align:center;font-size:1.5em;">
-    Badminton Court Trainer (Phaser, Imperial Units, Correct Names)
+    Badminton Court Trainer (Phaser, Quiz, Correct Service Court Naming, Fixed Hover)
   </header>
   <div id="controls">
     <button id="teachBtn">Teach Mode</button>
@@ -29,7 +29,6 @@ function getResponsiveScale() {
   const availableHeight = Math.max(window.innerHeight - 220, 350);
   return availableHeight / 528;
 }
-
 function getResponsiveConfig() {
   const scale = getResponsiveScale();
   const margin = 20;
@@ -42,9 +41,7 @@ function getResponsiveConfig() {
     height_px: margin * 2 + 528 * scale
   };
 }
-
 let COURT = getCourtDimensions();
-
 function getCourtDimensions() {
   const rc = getResponsiveConfig();
   return {
@@ -60,7 +57,7 @@ function getCourtDimensions() {
     sideline_right_doubles: 240,
     sideline_left_singles: 18,
     sideline_right_singles: 222,
-    short_service_line_y: 186, // from each baseline, 6'6" (78") from net
+    short_service_line_y: 186,
     short_service_line_y_opp: 342,
     long_service_line_doubles_y: 30,
     long_service_line_doubles_y_opp: 498,
@@ -69,64 +66,71 @@ function getCourtDimensions() {
     height_px: rc.height_px
   };
 }
-
 function toPx(inches) {
   return COURT.margin + inches * COURT.scale;
 }
+const HIT_SIZE = 12;
 
-const HIT_SIZE = 12; // pixels
+// Correct line definitions (no left/right/top/bottom qualifiers)
+function getLines() {
+  return [
+    { id:'baseline', name:'Baseline', desc:'Back boundary (baseline) at each end of court.', coords:[COURT.sideline_left_doubles, COURT.baseline_top, COURT.sideline_right_doubles, COURT.baseline_top] },
+    { id:'baseline-opp', name:'Baseline', desc:'Back boundary (baseline) at each end of court.', coords:[COURT.sideline_left_doubles, COURT.baseline_bottom, COURT.sideline_right_doubles, COURT.baseline_bottom] },
+    { id:'doubles-sideline', name:'Doubles Sideline', desc:'Sideline for doubles play.', coords:[COURT.sideline_left_doubles, COURT.baseline_top, COURT.sideline_left_doubles, COURT.baseline_bottom] },
+    { id:'doubles-sideline-opp', name:'Doubles Sideline', desc:'Sideline for doubles play.', coords:[COURT.sideline_right_doubles, COURT.baseline_top, COURT.sideline_right_doubles, COURT.baseline_bottom] },
+    { id:'singles-sideline', name:'Singles Sideline', desc:'Sideline for singles play.', coords:[COURT.sideline_left_singles, COURT.baseline_top, COURT.sideline_left_singles, COURT.baseline_bottom] },
+    { id:'singles-sideline-opp', name:'Singles Sideline', desc:'Sideline for singles play.', coords:[COURT.sideline_right_singles, COURT.baseline_top, COURT.sideline_right_singles, COURT.baseline_bottom] },
+    { id:'short-service-line', name:'Short Service Line', desc:'Line 6\'6" (78") from net, each side.', coords:[COURT.sideline_left_doubles, COURT.short_service_line_y, COURT.sideline_right_doubles, COURT.short_service_line_y] },
+    { id:'short-service-line-opp', name:'Short Service Line', desc:'Line 6\'6" (78") from net, each side.', coords:[COURT.sideline_left_doubles, COURT.short_service_line_y_opp, COURT.sideline_right_doubles, COURT.short_service_line_y_opp] },
+    { id:'long-service-line-doubles', name:'Long Service Line for Doubles', desc:'Line 2\'6" (30") in from each baseline for doubles service.', coords:[COURT.sideline_left_doubles, COURT.long_service_line_doubles_y, COURT.sideline_right_doubles, COURT.long_service_line_doubles_y] },
+    { id:'long-service-line-doubles-opp', name:'Long Service Line for Doubles', desc:'Line 2\'6" (30") in from each baseline for doubles service.', coords:[COURT.sideline_left_doubles, COURT.long_service_line_doubles_y_opp, COURT.sideline_right_doubles, COURT.long_service_line_doubles_y_opp] },
+    { id:'center-line', name:'Center Line', desc:'Divides left and right service courts, from short service line to baseline.', coords:[COURT.center_line_x, COURT.short_service_line_y, COURT.center_line_x, COURT.baseline_top] },
+    { id:'center-line-opp', name:'Center Line', desc:'Divides left and right service courts, from short service line to baseline.', coords:[COURT.center_line_x, COURT.short_service_line_y_opp, COURT.center_line_x, COURT.baseline_bottom] },
+    { id:'net', name:'Net (visual only)', desc:'Net location (not painted in real life).', coords:[COURT.sideline_left_doubles, COURT.net_y, COURT.sideline_right_doubles, COURT.net_y], net:true }
+  ];
+}
 
-const getLines = () => [
-  { id:'baseline', name:'Baseline', desc:'Back boundary (baseline) at each end of court.', coords:[COURT.sideline_left_doubles, COURT.baseline_top, COURT.sideline_right_doubles, COURT.baseline_top] },
-  { id:'baseline-opp', name:'Baseline', desc:'Back boundary (baseline) at each end of court.', coords:[COURT.sideline_left_doubles, COURT.baseline_bottom, COURT.sideline_right_doubles, COURT.baseline_bottom] },
-  { id:'doubles-sideline', name:'Doubles Sideline', desc:'Sideline for doubles play.', coords:[COURT.sideline_left_doubles, COURT.baseline_top, COURT.sideline_left_doubles, COURT.baseline_bottom] },
-  { id:'doubles-sideline-opp', name:'Doubles Sideline', desc:'Sideline for doubles play.', coords:[COURT.sideline_right_doubles, COURT.baseline_top, COURT.sideline_right_doubles, COURT.baseline_bottom] },
-  { id:'singles-sideline', name:'Singles Sideline', desc:'Sideline for singles play.', coords:[COURT.sideline_left_singles, COURT.baseline_top, COURT.sideline_left_singles, COURT.baseline_bottom] },
-  { id:'singles-sideline-opp', name:'Singles Sideline', desc:'Sideline for singles play.', coords:[COURT.sideline_right_singles, COURT.baseline_top, COURT.sideline_right_singles, COURT.baseline_bottom] },
-  { id:'short-service-line', name:'Short Service Line', desc:'Line 6\'6" (78") from net, each side.', coords:[COURT.sideline_left_doubles, COURT.short_service_line_y, COURT.sideline_right_doubles, COURT.short_service_line_y] },
-  { id:'short-service-line-opp', name:'Short Service Line', desc:'Line 6\'6" (78") from net, each side.', coords:[COURT.sideline_left_doubles, COURT.short_service_line_y_opp, COURT.sideline_right_doubles, COURT.short_service_line_y_opp] },
-  { id:'long-service-line-doubles', name:'Long Service Line for Doubles', desc:'Line 2\'6" (30") in from each baseline for doubles service.', coords:[COURT.sideline_left_doubles, COURT.long_service_line_doubles_y, COURT.sideline_right_doubles, COURT.long_service_line_doubles_y] },
-  { id:'long-service-line-doubles-opp', name:'Long Service Line for Doubles', desc:'Line 2\'6" (30") in from each baseline for doubles service.', coords:[COURT.sideline_left_doubles, COURT.long_service_line_doubles_y_opp, COURT.sideline_right_doubles, COURT.long_service_line_doubles_y_opp] },
-  { id:'center-line', name:'Center Line', desc:'Divides left and right service courts, from short service line to baseline.', coords:[COURT.center_line_x, COURT.short_service_line_y, COURT.center_line_x, COURT.baseline_top] },
-  { id:'center-line-opp', name:'Center Line', desc:'Divides left and right service courts, from short service line to baseline.', coords:[COURT.center_line_x, COURT.short_service_line_y_opp, COURT.center_line_x, COURT.baseline_bottom] },
-  { id:'net', name:'Net (visual only)', desc:'Net location (not painted in real life).', coords:[COURT.sideline_left_doubles, COURT.net_y, COURT.sideline_right_doubles, COURT.net_y], net:true }
-];
+// Service court definitions: only "Left Service Court" and "Right Service Court", names are duplicated as per player perspective
+function getServiceCourts() {
+  return [
+    // Upper half (above net)
+    { id:'left-service-court-upper', name:'Left Service Court', desc:'Left service court, always to the left of the center line from the player\'s perspective.', area:{
+      x: COURT.sideline_left_singles,
+      y: COURT.short_service_line_y,
+      w: COURT.center_line_x - COURT.sideline_left_singles,
+      h: COURT.long_service_line_doubles_y - COURT.short_service_line_y
+    }},
+    { id:'right-service-court-upper', name:'Right Service Court', desc:'Right service court, always to the right of the center line from the player\'s perspective.', area:{
+      x: COURT.center_line_x,
+      y: COURT.short_service_line_y,
+      w: COURT.sideline_right_singles - COURT.center_line_x,
+      h: COURT.long_service_line_doubles_y - COURT.short_service_line_y
+    }},
+    // Lower half (below net)
+    { id:'left-service-court-lower', name:'Left Service Court', desc:'Left service court, always to the left of the center line from the player\'s perspective.', area:{
+      x: COURT.sideline_left_singles,
+      y: COURT.long_service_line_doubles_y_opp,
+      w: COURT.center_line_x - COURT.sideline_left_singles,
+      h: COURT.short_service_line_y_opp - COURT.long_service_line_doubles_y_opp
+    }},
+    { id:'right-service-court-lower', name:'Right Service Court', desc:'Right service court, always to the right of the center line from the player\'s perspective.', area:{
+      x: COURT.center_line_x,
+      y: COURT.long_service_line_doubles_y_opp,
+      w: COURT.sideline_right_singles - COURT.center_line_x,
+      h: COURT.short_service_line_y_opp - COURT.long_service_line_doubles_y_opp
+    }},
+  ];
+}
 
-const getServiceCourts = () => [
-  // Near side (top of canvas)
-  { id:'right-service-court', name:'Right Service Court', desc:'Right service court (server\'s right side), between center and sideline, short and long service lines.', area:{
-    x:COURT.center_line_x,
-    y:COURT.short_service_line_y,
-    w:COURT.sideline_right_singles-COURT.center_line_x,
-    h:COURT.long_service_line_doubles_y-COURT.short_service_line_y
-  }},
-  { id:'left-service-court', name:'Left Service Court', desc:'Left service court (server\'s left side), between center and sideline, short and long service lines.', area:{
-    x:COURT.sideline_left_singles,
-    y:COURT.short_service_line_y,
-    w:COURT.center_line_x-COURT.sideline_left_singles,
-    h:COURT.long_service_line_doubles_y-COURT.short_service_line_y
-  }},
-  // Far side (bottom of canvas)
-  { id:'left-service-court-opp', name:'Left Service Court', desc:'Left service court (server\'s left side), between center and sideline, short and long service lines.', area:{
-    x:COURT.sideline_left_singles,
-    y:COURT.long_service_line_doubles_y_opp,
-    w:COURT.center_line_x-COURT.sideline_left_singles,
-    h:COURT.short_service_line_y_opp-COURT.long_service_line_doubles_y_opp
-  }},
-  { id:'right-service-court-opp', name:'Right Service Court', desc:'Right service court (server\'s right side), between center and sideline, short and long service lines.', area:{
-    x:COURT.center_line_x,
-    y:COURT.long_service_line_doubles_y_opp,
-    w:COURT.sideline_right_singles-COURT.center_line_x,
-    h:COURT.short_service_line_y_opp-COURT.long_service_line_doubles_y_opp
-  }}
-];
-
+// Quiz/teach state
 let mode = 'teach';
 let currentQuiz = null;
 let score = 0;
 let total = 0;
 let game, scene;
+let lastHoveredObj = null;
 
+// Phaser game setup
 function createPhaserGame() {
   if (game) { game.destroy(true); }
   COURT = getCourtDimensions();
@@ -146,58 +150,17 @@ function createPhaserGame() {
   game = new Phaser.Game(config);
 }
 
+// Create court and interactive elements
 function create() {
   scene = this;
   this.graphics = this.add.graphics();
   restartCourt();
 
-  this.lineObjs = getLines().map(line => {
-    const color = line.net ? 0x888888 : 0x1976d2;
-    const width = line.net ? 1 : 3;
-    const x1 = toPx(line.coords[0]), y1 = toPx(line.coords[1]);
-    const x2 = toPx(line.coords[2]), y2 = toPx(line.coords[3]);
-    const obj = this.add.line(0, 0, x1, y1, x2, y2, color)
-      .setLineWidth(width, width).setOrigin(0);
+  this.lineObjs = getLines().map(line => createInteractiveLine(scene, line));
+  this.serviceObjs = getServiceCourts().map(area => createInteractiveRect(scene, area));
 
-    // Larger hit area: rectangle
-    let hitArea;
-    if (x1 === x2) {
-      hitArea = new Phaser.Geom.Rectangle(x1 - HIT_SIZE/2, Math.min(y1, y2), HIT_SIZE, Math.abs(y2-y1));
-    } else if (y1 === y2) {
-      hitArea = new Phaser.Geom.Rectangle(Math.min(x1, x2), y1 - HIT_SIZE/2, Math.abs(x2-x1), HIT_SIZE);
-    } else {
-      hitArea = new Phaser.Geom.Rectangle(
-        Math.min(x1,x2) - HIT_SIZE/2, Math.min(y1,y2) - HIT_SIZE/2,
-        Math.abs(x2-x1) + HIT_SIZE, Math.abs(y2-y1) + HIT_SIZE
-      );
-    }
-    obj.setInteractive({ useHandCursor: true, hitArea, hitAreaCallback: Phaser.Geom.Rectangle.Contains });
-
-    obj.data = new Phaser.Data.DataManager(obj);
-    obj.data.set('name', line.name);
-    obj.data.set('desc', line.desc);
-    obj.data.set('id', line.id);
-    return obj;
-  });
-
-  this.serviceObjs = getServiceCourts().map(area => {
-    const obj = this.add.rectangle(
-      toPx(area.area.x + area.area.w/2),
-      toPx(area.area.y + area.area.h/2),
-      Math.abs(toPx(area.area.w)),
-      Math.abs(toPx(area.area.h)),
-      0xe3f2fd, 0.01
-    );
-    obj.setInteractive({ useHandCursor: true });
-    obj.data = new Phaser.Data.DataManager(obj);
-    obj.data.set('name', area.name);
-    obj.data.set('desc', area.desc);
-    obj.data.set('id', area.id);
-    return obj;
-  });
-
-  // Only one element hovered at a time
-  let lastHoveredObj = null;
+  // Only one element highlighted at a time for hover
+  lastHoveredObj = null;
   this.input.on('pointermove', function (pointer) {
     let foundObj = null;
     [...scene.lineObjs, ...scene.serviceObjs].forEach(obj => {
@@ -211,12 +174,10 @@ function create() {
         foundObj = obj;
       }
     });
-
     if (lastHoveredObj && lastHoveredObj !== foundObj) {
       highlightObject(lastHoveredObj, false);
       lastHoveredObj = null;
     }
-
     if (foundObj) {
       if (lastHoveredObj !== foundObj) {
         highlightObject(foundObj, true);
@@ -227,6 +188,7 @@ function create() {
     }
   });
 
+  // Click/tap logic
   this.input.on('gameobjectdown', (pointer, obj) => {
     if (mode === 'teach') {
       info(obj.data.get('name'), obj.data.get('desc'));
@@ -237,9 +199,9 @@ function create() {
         highlightObject(obj, true);
       } else {
         feedback(`❌ Incorrect. That was ${obj.data.get('name')}. (${score}/${total})`);
-        highlightQuizObject(currentQuiz.id);
+        highlightQuizObject(scene, currentQuiz.id);
       }
-      setTimeout(nextQuizQuestion, 1200);
+      setTimeout(() => nextQuizQuestion(scene), 1200);
     }
   });
 }
@@ -265,12 +227,7 @@ function restartCourt() {
   });
 }
 
-function info(name, desc) {
-  document.getElementById('info').innerHTML = `<h3>${name}</h3><p>${desc}</p>`;
-}
-function feedback(msg) {
-  document.getElementById('info').innerHTML = `<div style="font-weight:bold">${msg}</div>`;
-}
+// Highlight helper
 function highlightObject(obj, active) {
   if (obj.type === 'Line') {
     if (active) obj.setStrokeStyle(10, 0xff9800);
@@ -280,12 +237,62 @@ function highlightObject(obj, active) {
     else obj.setFillStyle(0xe3f2fd, 0.01);
   }
 }
-function highlightQuizObject(id) {
+function highlightQuizObject(scene, id) {
   [...scene.lineObjs, ...scene.serviceObjs].forEach(o => {
     highlightObject(o, o.data.get('id') === id);
   });
 }
 
+// Info/feedback UI
+function info(name, desc) {
+  document.getElementById('info').innerHTML = `<h3>${name}</h3><p>${desc}</p>`;
+}
+function feedback(msg) {
+  document.getElementById('info').innerHTML = `<div style="font-weight:bold">${msg}</div>`;
+}
+
+// Interactive element creators
+function createInteractiveLine(scene, line) {
+  const color = line.net ? 0x888888 : 0x1976d2;
+  const width = line.net ? 1 : 3;
+  const x1 = toPx(line.coords[0]), y1 = toPx(line.coords[1]);
+  const x2 = toPx(line.coords[2]), y2 = toPx(line.coords[3]);
+  const obj = scene.add.line(0, 0, x1, y1, x2, y2, color).setLineWidth(width, width).setOrigin(0);
+  let hitArea;
+  if (x1 === x2) {
+    hitArea = new Phaser.Geom.Rectangle(x1 - HIT_SIZE/2, Math.min(y1, y2), HIT_SIZE, Math.abs(y2-y1));
+  } else if (y1 === y2) {
+    hitArea = new Phaser.Geom.Rectangle(Math.min(x1, x2), y1 - HIT_SIZE/2, Math.abs(x2-x1), HIT_SIZE);
+  } else {
+    hitArea = new Phaser.Geom.Rectangle(
+      Math.min(x1,x2) - HIT_SIZE/2, Math.min(y1,y2) - HIT_SIZE/2,
+      Math.abs(x2-x1) + HIT_SIZE, Math.abs(y2-y1) + HIT_SIZE
+    );
+  }
+  obj.setInteractive({ useHandCursor: true, hitArea, hitAreaCallback: Phaser.Geom.Rectangle.Contains });
+  obj.data = new Phaser.Data.DataManager(obj);
+  obj.data.set('name', line.name);
+  obj.data.set('desc', line.desc);
+  obj.data.set('id', line.id);
+  return obj;
+}
+function createInteractiveRect(scene, area) {
+  const obj = scene.add.rectangle(
+    toPx(area.area.x + area.area.w/2),
+    toPx(area.area.y + area.area.h/2),
+    Math.abs(toPx(area.area.w)),
+    Math.abs(toPx(area.area.h)),
+    0xe3f2fd, 0.01
+  );
+  obj.setInteractive({ useHandCursor: true });
+  obj.data = new Phaser.Data.DataManager(obj);
+  obj.data.set('name', area.name);
+  obj.data.set('desc', area.desc);
+  obj.data.set('id', area.id);
+  return obj;
+}
+
+// Quiz logic
 function showTeachCourt() {
   mode = 'teach';
   score = 0; total = 0; currentQuiz = null;
@@ -297,15 +304,16 @@ function showQuizCourt() {
   mode = 'quiz';
   score = 0; total = 0;
   restartCourt();
-  nextQuizQuestion();
+  nextQuizQuestion(scene);
 }
-function nextQuizQuestion() {
+function nextQuizQuestion(scene) {
   total++;
   currentQuiz = Phaser.Utils.Array.GetRandom([...getLines(), ...getServiceCourts()]);
   feedback(`<b>Which line or area is: <span style="color:#1976d2">${currentQuiz.name}</span>?</b><br><small>Tap on the court to answer.</small>`);
-  highlightQuizObject(null);
+  highlightQuizObject(scene, null);
 }
 
+// Controls
 document.getElementById('teachBtn').onclick = () => { scene.showTeachCourt(); };
 document.getElementById('quizBtn').onclick = () => { scene.showQuizCourt(); };
 
@@ -317,6 +325,7 @@ window.addEventListener('resize', () => {
   }, 100);
 });
 
+// Initial launch
 createPhaserGame();
 </script>
 </body>
