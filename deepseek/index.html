@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badminton Court Knowledge Quiz</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            overflow: hidden;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+        .instructions {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #game-container {
+            margin: 0 auto;
+            border: 3px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        .score-display {
+            font-size: 1.5rem;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .btn:hover {
+            background: #ff8e8e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+        }
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .mode-btn {
+            background: #4ecdc4;
+        }
+        .mode-btn:hover {
+            background: #81e8e1;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Badminton Court Knowledge Quiz</h1>
+        <div class="instructions">
+            <p>Learn about badminton court lines and service areas! Click on different game modes to start.</p>
+            <p><strong>Learn Mode:</strong> Explore the court and learn about each area</p>
+            <p><strong>Quiz Mode:</strong> Test your knowledge by answering questions</p>
+        </div>
+        
+        <div class="score-display">Score: <span id="score">0</span></div>
+        
+        <div id="game-container"></div>
+        
+        <div>
+            <button id="learn-btn" class="btn mode-btn">Learn Mode</button>
+            <button id="quiz-btn" class="btn">Quiz Mode</button>
+            <button id="reset-btn" class="btn">Reset Game</button>
+        </div>
+        
+        <div class="footer">
+            <p>Created with Phaser.js | Hover over court areas to learn, then test your knowledge in Quiz Mode!</p>
+        </div>
+    </div>
+
+    <script>
+        // Main game configuration
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 500,
+            parent: 'game-container',
+            backgroundColor: '#2c3e50',
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+        // Game variables
+        let game;
+        let score = 0;
+        let currentMode = 'learn';
+        let courtGraphics;
+        let infoText;
+        let quizQuestion;
+        let quizOptions = [];
+        let correctAnswer;
+
+        // Badminton court data
+        const courtAreas = [
+            { name: "Right Service Court", x: 575, y: 150, width: 80, height: 120, color: 0xff6b6b, description: "Area for serving in singles and doubles. Service must land here when serving to the right side." },
+            { name: "Left Service Court", x: 575, y: 300, width: 80, height: 120, color: 0x4ecdc4, description: "Area for serving in singles and doubles. Service must land here when serving to the left side." },
+            { name: "Back Boundary Line", x: 400, y: 50, width: 500, height: 5, color: 0xffffff, description: "The back boundary line at the end of the court. Shots landing beyond this line are out." },
+            { name: "Short Service Line", x: 400, y: 200, width: 500, height: 5, color: 0xffff00, description: "The line beyond which a serve must land. Serves that land before this line are faults." },
+            { name: "Center Line", x: 400, y: 125, width: 5, height: 350, color: 0xffffff, description: "Divides the court into left and right service courts. Service must be delivered to the opposite court." },
+            { name: "Doubles Sideline", x: 650, y: 225, width: 5, height: 350, color: 0xffffff, description: "The outer boundary for doubles matches. Shots landing outside this line are out in doubles." },
+            { name: "Singles Sideline", x: 550, y: 225, width: 5, height: 350, color: 0xffffff, description: "The inner boundary for singles matches. Shots landing outside this line are out in singles." }
+        ];
+
+        // Quiz questions
+        const quizQuestions = [
+            {
+                question: "Where must a serve land in singles when serving to the right?",
+                options: ["Right Service Court", "Left Service Court", "Anywhere in the opponent's court", "Back boundary line"],
+                answer: 0
+            },
+            {
+                question: "Which line marks the end of the court?",
+                options: ["Short service line", "Center line", "Back boundary line", "Doubles sideline"],
+                answer: 2
+            },
+            {
+                question: "In doubles, what is the width of the court?",
+                options: ["Same as singles", "Wider than singles", "Narrower than singles", "It varies"],
+                answer: 1
+            },
+            {
+                question: "Which line divides the court into left and right service courts?",
+                options: ["Short service line", "Center line", "Back boundary line", "Doubles sideline"],
+                answer: 1
+            },
+            {
+                question: "Where must a serve land to be considered good?",
+                options: ["Before the short service line", "On any line", "Beyond the back boundary line", "In the correct service court"],
+                answer: 3
+            }
+        ];
+
+        // Initialize the game
+        game = new Phaser.Game(config);
+
+        function preload() {
+            // Load any assets here if needed
+        }
+
+        function create() {
+            // Draw the badminton court
+            drawCourt();
+            
+            // Create info text
+            infoText = this.add.text(50, 400, "Select a mode to begin! Click on court areas to learn about them.", {
+                font: "18px Arial",
+                fill: "#ffffff",
+                wordWrap: { width: 700 }
+            });
+            
+            // Set up button event listeners
+            document.getElementById('learn-btn').addEventListener('click', () => switchMode('learn', this));
+            document.getElementById('quiz-btn').addEventListener('click', () => switchMode('quiz', this));
+            document.getElementById('reset-btn').addEventListener('click', () => resetGame(this));
+            
+            // Initial mode
+            switchMode('learn', this);
+        }
+
+        function update() {
+            // Game update loop
+        }
+
+        function drawCourt() {
+            // Clear previous graphics
+            if (courtGraphics) {
+                courtGraphics.destroy();
+            }
+            
+            // Create new graphics
+            courtGraphics = game.scene.scenes[0].add.graphics();
+            
+            // Draw court outline
+            courtGraphics.lineStyle(4, 0xffffff, 1);
+            courtGraphics.strokeRect(300, 50, 500, 400);
+            
+            // Draw net
+            courtGraphics.lineStyle(3, 0xffffff, 1);
+            courtGraphics.beginPath();
+            courtGraphics.moveTo(300, 250);
+            courtGraphics.lineTo(800, 250);
+            courtGraphics.strokePath();
+            
+            // Draw court areas
+            courtAreas.forEach(area => {
+                courtGraphics.lineStyle(2, area.color, 1);
+                courtGraphics.fillStyle(area.color, 0.3);
+                courtGraphics.fillRect(area.x, area.y, area.width, area.height);
+                courtGraphics.strokeRect(area.x, area.y, area.width, area.height);
+                
+                // Make areas interactive
+                const zone = game.scene.scenes[0].add.zone(area.x, area.y, area.width, area.height).setOrigin(0).setInteractive();
+                zone.areaData = area;
+                
+                zone.on('pointerover', () => {
+                    if (currentMode === 'learn') {
+                        courtGraphics.fillStyle(area.color, 0.6);
+                        courtGraphics.fillRect(area.x, area.y, area.width, area.height);
+                        infoText.setText(area.name + ": " + area.description);
+                    }
+                });
+                
+                zone.on('pointerout', () => {
+                    courtGraphics.fillStyle(area.color, 0.3);
+                    courtGraphics.fillRect(area.x, area.y, area.width, area.height);
+                    if (currentMode === 'learn') {
+                        infoText.setText("Select a court area to learn about it.");
+                    }
+                });
+                
+                zone.on('pointerdown', () => {
+                    if (currentMode === 'learn') {
+                        infoText.setText(area.name + ": " + area.description);
+                    } else if (currentMode === 'quiz') {
+                        checkQuizAnswer(zone.areaData.name);
+                    }
+                });
+            });
+            
+            // Add labels
+            courtAreas.forEach(area => {
+                if (area.name !== "Back Boundary Line" && area.name !== "Short Service Line") {
+                    const labelX = area.x + area.width/2;
+                    const labelY = area.y + area.height/2;
+                    
+                    game.scene.scenes[0].add.text(labelX, labelY, area.name.split(' ')[0], {
+                        font: "12px Arial",
+                        fill: "#ffffff",
+                        align: "center"
+                    }).setOrigin(0.5);
+                }
+            });
+            
+            // Add net label
+            game.scene.scenes[0].add.text(550, 240, "NET", {
+                font: "16px Arial",
+                fill: "#ffffff"
+            }).setOrigin(0.5);
+        }
+
+        function switchMode(mode, scene) {
+            currentMode = mode;
+            
+            // Clear previous quiz elements
+            if (quizQuestion) quizQuestion.destroy();
+            quizOptions.forEach(opt => opt.destroy());
+            quizOptions = [];
+            
+            if (mode === 'learn') {
+                infoText.setText("Learn Mode: Click on different court areas to learn about them.");
+                document.getElementById('learn-btn').style.background = '#4ecdc4';
+                document.getElementById('quiz-btn').style.background = '#ff6b6b';
+            } else if (mode === 'quiz') {
+                infoText.setText("Quiz Mode: Answer questions about badminton court rules.");
+                document.getElementById('learn-btn').style.background = '#ff6b6b';
+                document.getElementById('quiz-btn').style.background = '#4ecdc4';
+                startQuiz(scene);
+            }
+        }
+
+        function startQuiz(scene) {
+            // Select a random question
+            const questionData = quizQuestions[Math.floor(Math.random() * quizQuestions.length)];
+            correctAnswer = questionData.answer;
+            
+            // Display question
+            quizQuestion = scene.add.text(400, 380, questionData.question, {
+                font: "20px Arial",
+                fill: "#ffffff",
+                align: "center",
+                wordWrap: { width: 750 }
+            }).setOrigin(0.5);
+            
+            // Display options
+            const optionsY = [410, 430, 450, 470];
+            questionData.options.forEach((option, index) => {
+                const optionText = scene.add.text(400, optionsY[index], `${index + 1}. ${option}`, {
+                    font: "18px Arial",
+                    fill: "#ffff00",
+                    align: "center"
+                }).setOrigin(0.5).setInteractive();
+                
+                optionText.on('pointerdown', () => checkQuizAnswer(option));
+                quizOptions.push(optionText);
+            });
+        }
+
+        function checkQuizAnswer(selectedAnswer) {
+            if (currentMode !== 'quiz') return;
+            
+            const correctOption = quizQuestions.find(q => 
+                q.options[correctAnswer] === selectedAnswer || 
+                q.answer === courtAreas.findIndex(a => a.name === selectedAnswer)
+            );
+            
+            if (correctOption) {
+                infoText.setText("Correct! " + selectedAnswer + " is the right answer.");
+                score += 10;
+                document.getElementById('score').textContent = score;
+                
+                // Next question after a delay
+                game.scene.scenes[0].time.delayedCall(2000, () => {
+                    switchMode('quiz', game.scene.scenes[0]);
+                });
+            } else {
+                infoText.setText("Incorrect. Try again!");
+                score = Math.max(0, score - 5);
+                document.getElementById('score').textContent = score;
+            }
+        }
+
+        function resetGame(scene) {
+            score = 0;
+            document.getElementById('score').textContent = score;
+            switchMode('learn', scene);
+        }
+    </script>
+</body>
+</html>
