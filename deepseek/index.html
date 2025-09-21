@@ -163,20 +163,33 @@
         // Calculate positions based on court dimensions
         const netPosition = courtX + courtWidth / 2;
         const shortServiceLineDistance = (6.5 / 22) * (courtWidth / 2); // 6.5ft from net in a 22ft half
+        const singlesSideLineInset = (1.5 / 20) * courtHeight; // 1.5ft inset from side boundary
 
         // Badminton court data - using correct dimensions and ratios
         const courtAreas = [
-            // Full court outline
-            { name: "Full Court", x: courtX, y: courtY, width: courtWidth, height: courtHeight, color: 0xffffff, description: "The full badminton court, 44ft x 20ft for doubles, 44ft x 17ft for singles." },
+            // Full court outline (doubles court)
+            { name: "Full Court (Doubles)", x: courtX, y: courtY, width: courtWidth, height: courtHeight, color: 0xffffff, description: "The full badminton court for doubles, 44ft x 20ft." },
             
             // Net (divides court into two halves)
             { name: "Net", x: netPosition, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "The net divides the court into two equal halves. It stands 1.55m (5ft 1in) high at the edges and 1.524m (5ft) high in the center." },
             
-            // Serving side (left half)
-            { name: "Serving Side", x: courtX, y: courtY, width: courtWidth/2, height: courtHeight, color: 0x333333, description: "The serving side of the court. Players serve from this side to the receiving side." },
+            // Back Boundary Line (Serving Side)
+            { name: "Back Boundary Line (Serving Side)", x: courtX, y: courtY, width: courtWidth/2, height: 2, color: 0xffffff, description: "The back boundary line on the serving side. Shots landing beyond this line are out." },
             
-            // Receiving side (right half)
-            { name: "Receiving Side", x: netPosition, y: courtY, width: courtWidth/2, height: courtHeight, color: 0x444444, description: "The receiving side of the court. Players receive serves on this side." },
+            // Back Boundary Line (Receiving Side)
+            { name: "Back Boundary Line (Receiving Side)", x: netPosition, y: courtY, width: courtWidth/2, height: 2, color: 0xffffff, description: "The back boundary line on the receiving side. Shots landing beyond this line are out." },
+            
+            // Doubles Sideline (Left)
+            { name: "Doubles Sideline (Left)", x: courtX, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Left doubles sideline. Shots landing outside this line are out in doubles play." },
+            
+            // Doubles Sideline (Right)
+            { name: "Doubles Sideline (Right)", x: courtX + courtWidth, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Right doubles sideline. Shots landing outside this line are out in doubles play." },
+            
+            // Singles Sideline (Left)
+            { name: "Singles Sideline (Left)", x: courtX + singlesSideLineInset, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Left singles sideline. Shots landing outside this line are out in singles play." },
+            
+            // Singles Sideline (Right)
+            { name: "Singles Sideline (Right)", x: courtX + courtWidth - singlesSideLineInset, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Right singles sideline. Shots landing outside this line are out in singles play." },
             
             // Short Service Line (Serving Side)
             { name: "Short Service Line (Serving Side)", x: courtX, y: courtY + shortServiceLineDistance, width: courtWidth/2, height: 2, color: 0xffff00, description: "Short service line on serving side. Serves must land beyond this line." },
@@ -196,20 +209,17 @@
             // Left Service Court (Receiving Side)
             { name: "Left Service Court (Receiving Side)", x: netPosition + courtWidth/4, y: courtY, width: courtWidth/4, height: shortServiceLineDistance, color: 0x4ecdc4, description: "Left service court on receiving side. Serves must land diagonally opposite in this area." },
             
-            // Center Line (dividing left and right service courts)
-            { name: "Center Line", x: courtX + courtWidth/4, y: courtY, width: 2, height: shortServiceLineDistance, color: 0xffffff, description: "Divides the service courts into left and right sections." },
+            // Center Line (dividing left and right service courts - Serving Side)
+            { name: "Center Line (Serving Side)", x: courtX + courtWidth/4, y: courtY, width: 2, height: shortServiceLineDistance, color: 0xffffff, description: "Divides the service courts into left and right sections on serving side." },
             
-            // Center Line (Receiving Side)
+            // Center Line (dividing left and right service courts - Receiving Side)
             { name: "Center Line (Receiving Side)", x: netPosition + courtWidth/4, y: courtY, width: 2, height: shortServiceLineDistance, color: 0xffffff, description: "Divides the service courts into left and right sections on receiving side." },
             
-            // Back Boundary Line
-            { name: "Back Boundary Line", x: courtX, y: courtY + courtHeight, width: courtWidth, height: 2, color: 0xffffff, description: "The back boundary line. Shots landing beyond this line are out." },
+            // Long Service Line for Singles (Serving Side)
+            { name: "Long Service Line for Singles (Serving Side)", x: courtX, y: courtY + courtHeight, width: courtWidth/2, height: 2, color: 0xffffff, description: "Long service line for singles on serving side. Serves must land before this line in singles play." },
             
-            // Side Line (Doubles)
-            { name: "Side Line (Doubles)", x: courtX, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Side boundary line for doubles. Shots landing outside this line are out in doubles play." },
-            
-            // Side Line (Doubles - Right)
-            { name: "Side Line (Doubles - Right)", x: courtX + courtWidth, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Side boundary line for doubles. Shots landing outside this line are out in doubles play." }
+            // Long Service Line for Singles (Receiving Side)
+            { name: "Long Service Line for Singles (Receiving Side)", x: netPosition, y: courtY + courtHeight, width: courtWidth/2, height: 2, color: 0xffffff, description: "Long service line for singles on receiving side. Serves must land before this line in singles play." }
         ];
 
         // Quiz questions
@@ -234,9 +244,9 @@
             },
             {
                 id: 4,
-                question: "Which line divides the service courts into left and right sections?",
-                options: ["Short service line", "Center line", "Long service line", "Side line"],
-                answer: 1
+                question: "How far are the singles sidelines inset from the doubles sidelines?",
+                options: ["1.5 feet", "2 feet", "2.5 feet", "3 feet"],
+                answer: 0
             },
             {
                 id: 5,
@@ -296,9 +306,6 @@
                 if (area.name.includes("Service Court")) {
                     courtGraphics.fillStyle(area.color, 0.3);
                     courtGraphics.fillRect(area.x, area.y, area.width, area.height);
-                } else if (area.name.includes("Side")) {
-                    // Just draw the outline for sides
-                    courtGraphics.strokeRect(area.x, area.y, area.width, area.height);
                 } else {
                     courtGraphics.strokeRect(area.x, area.y, area.width, area.height);
                 }
@@ -389,6 +396,35 @@
                 font: "10px Arial",
                 fill: "#ffff00",
                 backgroundColor: "#2c3e50"
+            }).setOrigin(0.5);
+            
+            // Add singles/doubles labels
+            game.scene.scenes[0].add.text(courtX + singlesSideLineInset/2, courtY + courtHeight/2, "Singles", {
+                font: "10px Arial",
+                fill: "#ffffff",
+                backgroundColor: "#2c3e50",
+                rotation: -Math.PI/2
+            }).setOrigin(0.5);
+            
+            game.scene.scenes[0].add.text(courtX + courtWidth - singlesSideLineInset/2, courtY + courtHeight/2, "Singles", {
+                font: "10px Arial",
+                fill: "#ffffff",
+                backgroundColor: "#2c3e50",
+                rotation: Math.PI/2
+            }).setOrigin(0.5);
+            
+            game.scene.scenes[0].add.text(courtX - 10, courtY + courtHeight/2, "Doubles", {
+                font: "10px Arial",
+                fill: "#ffffff",
+                backgroundColor: "#2c3e50",
+                rotation: -Math.PI/2
+            }).setOrigin(0.5);
+            
+            game.scene.scenes[0].add.text(courtX + courtWidth + 10, courtY + courtHeight/2, "Doubles", {
+                font: "10px Arial",
+                fill: "#ffffff",
+                backgroundColor: "#2c3e50",
+                rotation: Math.PI/2
             }).setOrigin(0.5);
         }
 
