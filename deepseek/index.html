@@ -161,42 +161,45 @@
         
         // Service court dimensions (based on standard badminton court measurements)
         const serviceCourtWidth = courtWidth / 2; // Half the court width
-        const serviceCourtHeight = courtHeight * (13 / 20); // 13ft is the length of service court
+        const serviceCourtHeight = courtHeight / 2; // Half the court height
 
         // Badminton court data - using correct dimensions and ratios
         const courtAreas = [
             // Full court outline
             { name: "Full Court", x: courtX, y: courtY, width: courtWidth, height: courtHeight, color: 0xffffff, description: "The full badminton court, 44ft x 20ft for doubles, 44ft x 17ft for singles." },
             
-            // Net
+            // Net (vertical line dividing left and right courts)
             { name: "Net", x: courtX + courtWidth/2, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "The net divides the court into two equal halves. It stands 1.55m (5ft 1in) high at the edges and 1.524m (5ft) high in the center." },
             
-            // Right Service Court (Singles) - Back
-            { name: "Right Service Court (Singles)", x: courtX + courtWidth/2, y: courtY, width: serviceCourtWidth, height: serviceCourtHeight, color: 0xff6b6b, description: "Right service court for singles. Serves must land diagonally opposite in this area." },
+            // Center Line (horizontal line dividing front and back courts)
+            { name: "Center Line", x: courtX, y: courtY + courtHeight/2, width: courtWidth, height: 2, color: 0xffffff, description: "Divides the court into front and back courts. Service must be delivered to the opposite court." },
             
-            // Left Service Court (Singles) - Back
-            { name: "Left Service Court (Singles)", x: courtX, y: courtY, width: serviceCourtWidth, height: serviceCourtHeight, color: 0x4ecdc4, description: "Left service court for singles. Serves must land diagonally opposite in this area." },
+            // Right Service Court (Back)
+            { name: "Right Service Court (Back)", x: courtX + courtWidth/2, y: courtY, width: serviceCourtWidth, height: serviceCourtHeight, color: 0xff6b6b, description: "Right back service court. Serves must land diagonally opposite in this area." },
             
-            // Right Service Court (Doubles) - Front
-            { name: "Right Service Court (Doubles)", x: courtX + courtWidth/2, y: courtY + serviceCourtHeight, width: serviceCourtWidth, height: courtHeight - serviceCourtHeight, color: 0xff6b6b, description: "Right service court for doubles. Serves must land diagonally opposite in this area." },
+            // Left Service Court (Back)
+            { name: "Left Service Court (Back)", x: courtX, y: courtY, width: serviceCourtWidth, height: serviceCourtHeight, color: 0x4ecdc4, description: "Left back service court. Serves must land diagonally opposite in this area." },
             
-            // Left Service Court (Doubles) - Front
-            { name: "Left Service Court (Doubles)", x: courtX, y: courtY + serviceCourtHeight, width: serviceCourtWidth, height: courtHeight - serviceCourtHeight, color: 0x4ecdc4, description: "Left service court for doubles. Serves must land diagonally opposite in this area." },
+            // Right Service Court (Front)
+            { name: "Right Service Court (Front)", x: courtX + courtWidth/2, y: courtY + serviceCourtHeight, width: serviceCourtWidth, height: serviceCourtHeight, color: 0xff6b6b, description: "Right front service court. Serves must land diagonally opposite in this area." },
             
-            // Short Service Line
-            { name: "Short Service Line", x: courtX, y: courtY + serviceCourtHeight, width: courtWidth, height: 2, color: 0xffff00, description: "The line beyond which a serve must land. Serves that land before this line are faults." },
+            // Left Service Court (Front)
+            { name: "Left Service Court (Front)", x: courtX, y: courtY + serviceCourtHeight, width: serviceCourtWidth, height: serviceCourtHeight, color: 0x4ecdc4, description: "Left front service court. Serves must land diagonally opposite in this area." },
             
-            // Center Line
-            { name: "Center Line", x: courtX + courtWidth/2, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Divides the court into left and right service courts. Service must be delivered to the opposite court." },
+            // Short Service Line (Front)
+            { name: "Short Service Line (Front)", x: courtX, y: courtY + courtHeight*0.78, width: courtWidth, height: 2, color: 0xffff00, description: "The line beyond which a serve must land. Serves that land before this line are faults." },
+            
+            // Short Service Line (Back)
+            { name: "Short Service Line (Back)", x: courtX, y: courtY + courtHeight*0.22, width: courtWidth, height: 2, color: 0xffff00, description: "The line beyond which a serve must land. Serves that land before this line are faults." },
             
             // Long Service Line (Singles)
-            { name: "Long Service Line (Singles)", x: courtX, y: courtY + serviceCourtHeight, width: courtWidth, height: 2, color: 0xffffff, description: "Back boundary line for singles. Shots landing beyond this line are out in singles play." },
+            { name: "Long Service Line (Singles)", x: courtX, y: courtY + courtHeight*0.16, width: courtWidth, height: 2, color: 0xffffff, description: "Back boundary line for singles. Shots landing beyond this line are out in singles play." },
             
             // Long Service Line (Doubles)
             { name: "Long Service Line (Doubles)", x: courtX, y: courtY, width: courtWidth, height: 2, color: 0xffffff, description: "Back boundary line for doubles. Shots landing beyond this line are out in doubles play." },
             
             // Side Line (Singles)
-            { name: "Side Line (Singles)", x: courtX + (courtWidth * 1/6), y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Side boundary line for singles. Shots landing outside this line are out in singles play." },
+            { name: "Side Line (Singles)", x: courtX + courtWidth*0.88, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Side boundary line for singles. Shots landing outside this line are out in singles play." },
             
             // Side Line (Doubles)
             { name: "Side Line (Doubles)", x: courtX + courtWidth, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Side boundary line for doubles. Shots landing outside this line are out in doubles play." }
@@ -224,7 +227,7 @@
             },
             {
                 id: 4,
-                question: "Which line divides the court into left and right service courts?",
+                question: "Which line divides the court into front and back courts?",
                 options: ["Short service line", "Center line", "Long service line", "Side line"],
                 answer: 1
             },
@@ -334,9 +337,9 @@
                     const labelY = area.y + area.height/2;
                     
                     const labelText = area.name.includes("Right") ? "Right" : "Left";
-                    const courtType = area.name.includes("Singles") ? "S" : "D";
+                    const courtPosition = area.name.includes("Back") ? "Back" : "Front";
                     
-                    game.scene.scenes[0].add.text(labelX, labelY, `${labelText}\n${courtType}`, {
+                    game.scene.scenes[0].add.text(labelX, labelY, `${labelText}\n${courtPosition}`, {
                         font: "10px Arial",
                         fill: "#ffffff",
                         align: "center"
@@ -358,6 +361,17 @@
             }).setOrigin(0.5);
             
             game.scene.scenes[0].add.text(courtX + 3*courtWidth/4, courtY - 15, "Right Court", {
+                font: "12px Arial",
+                fill: "#ffffff"
+            }).setOrigin(0.5);
+            
+            // Add front/back labels
+            game.scene.scenes[0].add.text(courtX - 30, courtY + courtHeight/4, "Back", {
+                font: "12px Arial",
+                fill: "#ffffff"
+            }).setOrigin(0.5);
+            
+            game.scene.scenes[0].add.text(courtX - 30, courtY + 3*courtHeight/4, "Front", {
                 font: "12px Arial",
                 fill: "#ffffff"
             }).setOrigin(0.5);
