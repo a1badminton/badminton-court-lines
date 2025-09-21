@@ -77,6 +77,17 @@
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.8);
         }
+        .quiz-option {
+            cursor: pointer;
+            padding: 8px 16px;
+            margin: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .quiz-option:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -127,6 +138,7 @@
         let quizQuestion;
         let quizOptions = [];
         let correctAnswer;
+        let currentQuestionIndex = 0;
 
         // Badminton court data
         const courtAreas = [
@@ -249,8 +261,6 @@
                 zone.on('pointerdown', () => {
                     if (currentMode === 'learn') {
                         infoText.setText(area.name + ": " + area.description);
-                    } else if (currentMode === 'quiz') {
-                        checkQuizAnswer(zone.areaData.name);
                     }
                 });
             });
@@ -297,8 +307,8 @@
         }
 
         function startQuiz(scene) {
-            // Select a random question
-            const questionData = quizQuestions[Math.floor(Math.random() * quizQuestions.length)];
+            // Select a question
+            const questionData = quizQuestions[currentQuestionIndex];
             correctAnswer = questionData.answer;
             
             // Display question
@@ -318,37 +328,37 @@
                     align: "center"
                 }).setOrigin(0.5).setInteractive();
                 
-                optionText.on('pointerdown', () => checkQuizAnswer(option));
+                optionText.on('pointerdown', () => checkQuizAnswer(index, optionText));
                 quizOptions.push(optionText);
             });
         }
 
-        function checkQuizAnswer(selectedAnswer) {
+        function checkQuizAnswer(selectedIndex, optionText) {
             if (currentMode !== 'quiz') return;
             
-            const correctOption = quizQuestions.find(q => 
-                q.options[correctAnswer] === selectedAnswer || 
-                q.answer === courtAreas.findIndex(a => a.name === selectedAnswer)
-            );
-            
-            if (correctOption) {
-                infoText.setText("Correct! " + selectedAnswer + " is the right answer.");
+            if (selectedIndex === correctAnswer) {
+                infoText.setText("Correct! " + quizQuestions[currentQuestionIndex].options[correctAnswer] + " is the right answer.");
                 score += 10;
-                document.getElementById('score').textContent = score;
-                
-                // Next question after a delay
-                game.scene.scenes[0].time.delayedCall(2000, () => {
-                    switchMode('quiz', game.scene.scenes[0]);
-                });
+                optionText.setColor("#00ff00");
             } else {
-                infoText.setText("Incorrect. Try again!");
+                infoText.setText("Incorrect. The correct answer is: " + quizQuestions[currentQuestionIndex].options[correctAnswer]);
                 score = Math.max(0, score - 5);
-                document.getElementById('score').textContent = score;
+                optionText.setColor("#ff0000");
+                quizOptions[correctAnswer].setColor("#00ff00");
             }
+            
+            document.getElementById('score').textContent = score;
+            
+            // Next question after a delay
+            game.scene.scenes[0].time.delayedCall(2000, () => {
+                currentQuestionIndex = (currentQuestionIndex + 1) % quizQuestions.length;
+                switchMode('quiz', game.scene.scenes[0]);
+            });
         }
 
         function resetGame(scene) {
             score = 0;
+            currentQuestionIndex = 0;
             document.getElementById('score').textContent = score;
             switchMode('learn', scene);
         }
