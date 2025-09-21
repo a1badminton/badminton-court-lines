@@ -154,55 +154,62 @@
         let correctlyAnswered = 0;
 
         // Court dimensions and layout
-        const courtWidth = 600;  // pixels
-        const courtHeight = 272; // pixels (600 / 44 * 20 to maintain 44:20 ratio)
-        const courtX = 100;      // x position to center the court
+        // Court is 44ft x 20ft, divided into two 22ft x 20ft halves by the net
+        const courtWidth = 660;  // pixels (maintaining 44:20 ratio)
+        const courtHeight = 300; // pixels
+        const courtX = 70;       // x position to center the court
         const courtY = 50;       // y position to center the court
         
-        // Service court dimensions (based on standard badminton court measurements)
-        const serviceCourtWidth = courtWidth / 2; // Half the court width
-        const serviceCourtHeight = courtHeight / 2; // Half the court height
+        // Calculate positions based on court dimensions
+        const netPosition = courtX + courtWidth / 2;
+        const shortServiceLineDistance = (6.5 / 22) * (courtWidth / 2); // 6.5ft from net in a 22ft half
 
         // Badminton court data - using correct dimensions and ratios
         const courtAreas = [
             // Full court outline
             { name: "Full Court", x: courtX, y: courtY, width: courtWidth, height: courtHeight, color: 0xffffff, description: "The full badminton court, 44ft x 20ft for doubles, 44ft x 17ft for singles." },
             
-            // Net (vertical line dividing left and right courts)
-            { name: "Net", x: courtX + courtWidth/2, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "The net divides the court into two equal halves. It stands 1.55m (5ft 1in) high at the edges and 1.524m (5ft) high in the center." },
+            // Net (divides court into two halves)
+            { name: "Net", x: netPosition, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "The net divides the court into two equal halves. It stands 1.55m (5ft 1in) high at the edges and 1.524m (5ft) high in the center." },
             
-            // Center Line (horizontal line dividing front and back courts)
-            { name: "Center Line", x: courtX, y: courtY + courtHeight/2, width: courtWidth, height: 2, color: 0xffffff, description: "Divides the court into front and back courts. Service must be delivered to the opposite court." },
+            // Serving side (left half)
+            { name: "Serving Side", x: courtX, y: courtY, width: courtWidth/2, height: courtHeight, color: 0x333333, description: "The serving side of the court. Players serve from this side to the receiving side." },
             
-            // Right Service Court (Back)
-            { name: "Right Service Court (Back)", x: courtX + courtWidth/2, y: courtY, width: serviceCourtWidth, height: serviceCourtHeight, color: 0xff6b6b, description: "Right back service court. Serves must land diagonally opposite in this area." },
+            // Receiving side (right half)
+            { name: "Receiving Side", x: netPosition, y: courtY, width: courtWidth/2, height: courtHeight, color: 0x444444, description: "The receiving side of the court. Players receive serves on this side." },
             
-            // Left Service Court (Back)
-            { name: "Left Service Court (Back)", x: courtX, y: courtY, width: serviceCourtWidth, height: serviceCourtHeight, color: 0x4ecdc4, description: "Left back service court. Serves must land diagonally opposite in this area." },
+            // Short Service Line (Serving Side)
+            { name: "Short Service Line (Serving Side)", x: courtX, y: courtY + shortServiceLineDistance, width: courtWidth/2, height: 2, color: 0xffff00, description: "Short service line on serving side. Serves must land beyond this line." },
             
-            // Right Service Court (Front)
-            { name: "Right Service Court (Front)", x: courtX + courtWidth/2, y: courtY + serviceCourtHeight, width: serviceCourtWidth, height: serviceCourtHeight, color: 0xff6b6b, description: "Right front service court. Serves must land diagonally opposite in this area." },
+            // Short Service Line (Receiving Side)
+            { name: "Short Service Line (Receiving Side)", x: netPosition, y: courtY + shortServiceLineDistance, width: courtWidth/2, height: 2, color: 0xffff00, description: "Short service line on receiving side. Serves must land beyond this line." },
             
-            // Left Service Court (Front)
-            { name: "Left Service Court (Front)", x: courtX, y: courtY + serviceCourtHeight, width: serviceCourtWidth, height: serviceCourtHeight, color: 0x4ecdc4, description: "Left front service court. Serves must land diagonally opposite in this area." },
+            // Right Service Court (Serving Side)
+            { name: "Right Service Court (Serving Side)", x: courtX, y: courtY, width: courtWidth/4, height: shortServiceLineDistance, color: 0xff6b6b, description: "Right service court on serving side. Serves must land diagonally opposite in this area." },
             
-            // Short Service Line (Front)
-            { name: "Short Service Line (Front)", x: courtX, y: courtY + courtHeight*0.78, width: courtWidth, height: 2, color: 0xffff00, description: "The line beyond which a serve must land. Serves that land before this line are faults." },
+            // Left Service Court (Serving Side)
+            { name: "Left Service Court (Serving Side)", x: courtX + courtWidth/4, y: courtY, width: courtWidth/4, height: shortServiceLineDistance, color: 0x4ecdc4, description: "Left service court on serving side. Serves must land diagonally opposite in this area." },
             
-            // Short Service Line (Back)
-            { name: "Short Service Line (Back)", x: courtX, y: courtY + courtHeight*0.22, width: courtWidth, height: 2, color: 0xffff00, description: "The line beyond which a serve must land. Serves that land before this line are faults." },
+            // Right Service Court (Receiving Side)
+            { name: "Right Service Court (Receiving Side)", x: netPosition, y: courtY, width: courtWidth/4, height: shortServiceLineDistance, color: 0xff6b6b, description: "Right service court on receiving side. Serves must land diagonally opposite in this area." },
             
-            // Long Service Line (Singles)
-            { name: "Long Service Line (Singles)", x: courtX, y: courtY + courtHeight*0.16, width: courtWidth, height: 2, color: 0xffffff, description: "Back boundary line for singles. Shots landing beyond this line are out in singles play." },
+            // Left Service Court (Receiving Side)
+            { name: "Left Service Court (Receiving Side)", x: netPosition + courtWidth/4, y: courtY, width: courtWidth/4, height: shortServiceLineDistance, color: 0x4ecdc4, description: "Left service court on receiving side. Serves must land diagonally opposite in this area." },
             
-            // Long Service Line (Doubles)
-            { name: "Long Service Line (Doubles)", x: courtX, y: courtY, width: courtWidth, height: 2, color: 0xffffff, description: "Back boundary line for doubles. Shots landing beyond this line are out in doubles play." },
+            // Center Line (dividing left and right service courts)
+            { name: "Center Line", x: courtX + courtWidth/4, y: courtY, width: 2, height: shortServiceLineDistance, color: 0xffffff, description: "Divides the service courts into left and right sections." },
             
-            // Side Line (Singles)
-            { name: "Side Line (Singles)", x: courtX + courtWidth*0.88, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Side boundary line for singles. Shots landing outside this line are out in singles play." },
+            // Center Line (Receiving Side)
+            { name: "Center Line (Receiving Side)", x: netPosition + courtWidth/4, y: courtY, width: 2, height: shortServiceLineDistance, color: 0xffffff, description: "Divides the service courts into left and right sections on receiving side." },
+            
+            // Back Boundary Line
+            { name: "Back Boundary Line", x: courtX, y: courtY + courtHeight, width: courtWidth, height: 2, color: 0xffffff, description: "The back boundary line. Shots landing beyond this line are out." },
             
             // Side Line (Doubles)
-            { name: "Side Line (Doubles)", x: courtX + courtWidth, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Side boundary line for doubles. Shots landing outside this line are out in doubles play." }
+            { name: "Side Line (Doubles)", x: courtX, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Side boundary line for doubles. Shots landing outside this line are out in doubles play." },
+            
+            // Side Line (Doubles - Right)
+            { name: "Side Line (Doubles - Right)", x: courtX + courtWidth, y: courtY, width: 2, height: courtHeight, color: 0xffffff, description: "Side boundary line for doubles. Shots landing outside this line are out in doubles play." }
         ];
 
         // Quiz questions
@@ -215,19 +222,19 @@
             },
             {
                 id: 2,
-                question: "Which line marks the end of the court for singles?",
-                options: ["Short service line", "Center line", "Long service line for singles", "Doubles sideline"],
-                answer: 2
+                question: "How far from the net is the short service line?",
+                options: ["6.5 feet", "10 feet", "15 feet", "20 feet"],
+                answer: 0
             },
             {
                 id: 3,
                 question: "In doubles, what is the width of the court?",
-                options: ["Same as singles", "Wider than singles", "Narrower than singles", "It varies"],
+                options: ["17 feet", "20 feet", "22 feet", "44 feet"],
                 answer: 1
             },
             {
                 id: 4,
-                question: "Which line divides the court into front and back courts?",
+                question: "Which line divides the service courts into left and right sections?",
                 options: ["Short service line", "Center line", "Long service line", "Side line"],
                 answer: 1
             },
@@ -289,9 +296,12 @@
                 if (area.name.includes("Service Court")) {
                     courtGraphics.fillStyle(area.color, 0.3);
                     courtGraphics.fillRect(area.x, area.y, area.width, area.height);
+                } else if (area.name.includes("Side")) {
+                    // Just draw the outline for sides
+                    courtGraphics.strokeRect(area.x, area.y, area.width, area.height);
+                } else {
+                    courtGraphics.strokeRect(area.x, area.y, area.width, area.height);
                 }
-                
-                courtGraphics.strokeRect(area.x, area.y, area.width, area.height);
                 
                 // Make areas interactive
                 const zone = game.scene.scenes[0].add.zone(area.x, area.y, area.width, area.height).setOrigin(0).setInteractive();
@@ -337,43 +347,48 @@
                     const labelY = area.y + area.height/2;
                     
                     const labelText = area.name.includes("Right") ? "Right" : "Left";
-                    const courtPosition = area.name.includes("Back") ? "Back" : "Front";
+                    const courtSide = area.name.includes("Serving") ? "Serve" : "Receive";
                     
-                    game.scene.scenes[0].add.text(labelX, labelY, `${labelText}\n${courtPosition}`, {
+                    game.scene.scenes[0].add.text(labelX, labelY, `${labelText}\n${courtSide}`, {
                         font: "10px Arial",
                         fill: "#ffffff",
-                        align: "center"
+                        align: "center",
+                        backgroundColor: "#2c3e50"
                     }).setOrigin(0.5);
                 }
             });
             
             // Add net label
-            game.scene.scenes[0].add.text(courtX + courtWidth/2, courtY + courtHeight/2, "NET", {
+            game.scene.scenes[0].add.text(netPosition, courtY + courtHeight/2, "NET", {
                 font: "14px Arial",
                 fill: "#ffffff",
                 backgroundColor: "#2c3e50"
             }).setOrigin(0.5);
             
-            // Add court half labels
-            game.scene.scenes[0].add.text(courtX + courtWidth/4, courtY - 15, "Left Court", {
+            // Add court side labels
+            game.scene.scenes[0].add.text(courtX + courtWidth/4, courtY - 15, "Serving Side", {
                 font: "12px Arial",
-                fill: "#ffffff"
+                fill: "#ffffff",
+                backgroundColor: "#2c3e50"
             }).setOrigin(0.5);
             
-            game.scene.scenes[0].add.text(courtX + 3*courtWidth/4, courtY - 15, "Right Court", {
+            game.scene.scenes[0].add.text(courtX + 3*courtWidth/4, courtY - 15, "Receiving Side", {
                 font: "12px Arial",
-                fill: "#ffffff"
+                fill: "#ffffff",
+                backgroundColor: "#2c3e50"
             }).setOrigin(0.5);
             
-            // Add front/back labels
-            game.scene.scenes[0].add.text(courtX - 30, courtY + courtHeight/4, "Back", {
-                font: "12px Arial",
-                fill: "#ffffff"
+            // Add short service line labels
+            game.scene.scenes[0].add.text(courtX + courtWidth/4, courtY + shortServiceLineDistance + 10, "Short Service Line", {
+                font: "10px Arial",
+                fill: "#ffff00",
+                backgroundColor: "#2c3e50"
             }).setOrigin(0.5);
             
-            game.scene.scenes[0].add.text(courtX - 30, courtY + 3*courtHeight/4, "Front", {
-                font: "12px Arial",
-                fill: "#ffffff"
+            game.scene.scenes[0].add.text(courtX + 3*courtWidth/4, courtY + shortServiceLineDistance + 10, "Short Service Line", {
+                font: "10px Arial",
+                fill: "#ffff00",
+                backgroundColor: "#2c3e50"
             }).setOrigin(0.5);
         }
 
