@@ -45,6 +45,10 @@
             margin: 15px 0;
             font-weight: bold;
         }
+        .progress-display {
+            font-size: 1rem;
+            margin: 10px 0;
+        }
         .btn {
             background: #ff6b6b;
             color: white;
@@ -88,6 +92,12 @@
         .quiz-option:hover {
             background: rgba(255, 255, 255, 0.3);
         }
+        .completion-message {
+            font-size: 1.5rem;
+            color: #4ecdc4;
+            font-weight: bold;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -100,6 +110,7 @@
         </div>
         
         <div class="score-display">Score: <span id="score">0</span></div>
+        <div class="progress-display">Progress: <span id="progress">0</span>/<span id="total-questions">5</span> questions answered correctly</div>
         
         <div id="game-container"></div>
         
@@ -107,6 +118,10 @@
             <button id="learn-btn" class="btn mode-btn">Learn Mode</button>
             <button id="quiz-btn" class="btn">Quiz Mode</button>
             <button id="reset-btn" class="btn">Reset Game</button>
+        </div>
+        
+        <div id="completion-message" class="completion-message" style="display: none;">
+            Congratulations! You've answered all questions correctly!
         </div>
         
         <div class="footer">
@@ -138,7 +153,8 @@
         let quizQuestion;
         let quizOptions = [];
         let correctAnswer;
-        let currentQuestionIndex = 0;
+        let answeredQuestions = new Set();
+        let correctlyAnswered = 0;
 
         // Badminton court data
         const courtAreas = [
@@ -154,26 +170,31 @@
         // Quiz questions
         const quizQuestions = [
             {
+                id: 1,
                 question: "Where must a serve land in singles when serving to the right?",
                 options: ["Right Service Court", "Left Service Court", "Anywhere in the opponent's court", "Back boundary line"],
                 answer: 0
             },
             {
+                id: 2,
                 question: "Which line marks the end of the court?",
                 options: ["Short service line", "Center line", "Back boundary line", "Doubles sideline"],
                 answer: 2
             },
             {
+                id: 3,
                 question: "In doubles, what is the width of the court?",
                 options: ["Same as singles", "Wider than singles", "Narrower than singles", "It varies"],
                 answer: 1
             },
             {
+                id: 4,
                 question: "Which line divides the court into left and right service courts?",
                 options: ["Short service line", "Center line", "Back boundary line", "Doubles sideline"],
                 answer: 1
             },
             {
+                id: 5,
                 question: "Where must a serve land to be considered good?",
                 options: ["Before the short service line", "On any line", "Beyond the back boundary line", "In the correct service court"],
                 answer: 3
@@ -202,6 +223,9 @@
             document.getElementById('learn-btn').addEventListener('click', () => switchMode('learn', this));
             document.getElementById('quiz-btn').addEventListener('click', () => switchMode('quiz', this));
             document.getElementById('reset-btn').addEventListener('click', () => resetGame(this));
+            
+            // Update total questions count
+            document.getElementById('total-questions').textContent = quizQuestions.length;
             
             // Initial mode
             switchMode('learn', this);
@@ -298,17 +322,36 @@
                 infoText.setText("Learn Mode: Click on different court areas to learn about them.");
                 document.getElementById('learn-btn').style.background = '#4ecdc4';
                 document.getElementById('quiz-btn').style.background = '#ff6b6b';
+                document.getElementById('completion-message').style.display = 'none';
             } else if (mode === 'quiz') {
                 infoText.setText("Quiz Mode: Answer questions about badminton court rules.");
                 document.getElementById('learn-btn').style.background = '#ff6b6b';
                 document.getElementById('quiz-btn').style.background = '#4ecdc4';
-                startQuiz(scene);
+                
+                // Check if all questions have been answered correctly
+                if (answeredQuestions.size >= quizQuestions.length) {
+                    document.getElementById('completion-message').style.display = 'block';
+                    infoText.setText("You've answered all questions correctly! Reset the game to start over.");
+                } else {
+                    document.getElementById('completion-message').style.display = 'none';
+                    startQuiz(scene);
+                }
             }
         }
 
         function startQuiz(scene) {
-            // Select a question
-            const questionData = quizQuestions[currentQuestionIndex];
+            // Get questions that haven't been answered correctly
+            const unansweredQuestions = quizQuestions.filter(q => !answeredQuestions.has(q.id));
+            
+            // If all questions have been answered, show completion message
+            if (unansweredQuestions.length === 0) {
+                document.getElementById('completion-message').style.display = 'block';
+                infoText.setText("You've answered all questions correctly! Reset the game to start over.");
+                return;
+            }
+            
+            // Select a random question from unanswered ones
+            const questionData = unansweredQuestions[Math.floor(Math.random() * unansweredQuestions.length)];
             correctAnswer = questionData.answer;
             
             // Display question
@@ -328,20 +371,25 @@
                     align: "center"
                 }).setOrigin(0.5).setInteractive();
                 
-                optionText.on('pointerdown', () => checkQuizAnswer(index, optionText));
+                optionText.on('pointerdown', () => checkQuizAnswer(index, questionData.id, optionText));
                 quizOptions.push(optionText);
             });
         }
 
-        function checkQuizAnswer(selectedIndex, optionText) {
+        function checkQuizAnswer(selectedIndex, questionId, optionText) {
             if (currentMode !== 'quiz') return;
             
             if (selectedIndex === correctAnswer) {
-                infoText.setText("Correct! " + quizQuestions[currentQuestionIndex].options[correctAnswer] + " is the right answer.");
+                infoText.setText("Correct! " + quizQuestions.find(q => q.id === questionId).options[correctAnswer] + " is the right answer.");
                 score += 10;
+                correctlyAnswered++;
+                answeredQuestions.add(questionId);
                 optionText.setColor("#00ff00");
+                
+                // Update progress
+                document.getElementById('progress').textContent = correctlyAnswered;
             } else {
-                infoText.setText("Incorrect. The correct answer is: " + quizQuestions[currentQuestionIndex].options[correctAnswer]);
+                infoText.setText("Incorrect. The correct answer is: " + quizQuestions.find(q => q.id === questionId).options[correctAnswer]);
                 score = Math.max(0, score - 5);
                 optionText.setColor("#ff0000");
                 quizOptions[correctAnswer].setColor("#00ff00");
@@ -351,15 +399,17 @@
             
             // Next question after a delay
             game.scene.scenes[0].time.delayedCall(2000, () => {
-                currentQuestionIndex = (currentQuestionIndex + 1) % quizQuestions.length;
                 switchMode('quiz', game.scene.scenes[0]);
             });
         }
 
         function resetGame(scene) {
             score = 0;
-            currentQuestionIndex = 0;
+            correctlyAnswered = 0;
+            answeredQuestions.clear();
             document.getElementById('score').textContent = score;
+            document.getElementById('progress').textContent = correctlyAnswered;
+            document.getElementById('completion-message').style.display = 'none';
             switchMode('learn', scene);
         }
     </script>
