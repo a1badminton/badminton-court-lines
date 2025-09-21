@@ -13,51 +13,56 @@
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             color: white;
             overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
+            width: 900px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
             text-align: center;
         }
         h1 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            margin-bottom: 10px;
+            margin: 5px 0;
         }
         .instructions {
             background: rgba(0, 0, 0, 0.6);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
         }
         #game-container {
-            margin: 0 auto;
+            flex: 1;
             border: 3px solid #fff;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
         }
         .score-display {
-            font-size: 1.5rem;
-            margin: 15px 0;
+            font-size: 1.2rem;
+            margin: 8px 0;
             font-weight: bold;
         }
         .progress-display {
-            font-size: 1rem;
-            margin: 10px 0;
+            font-size: 0.9rem;
+            margin: 5px 0;
         }
         .btn {
             background: #ff6b6b;
             color: white;
             border: none;
-            padding: 12px 24px;
-            font-size: 1.2rem;
+            padding: 8px 16px;
+            font-size: 1rem;
             border-radius: 50px;
             cursor: pointer;
-            margin: 10px;
+            margin: 5px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
@@ -77,26 +82,20 @@
             background: #81e8e1;
         }
         .footer {
-            margin-top: 20px;
-            font-size: 0.9rem;
+            margin-top: 10px;
+            font-size: 0.8rem;
             color: rgba(255, 255, 255, 0.8);
         }
-        .quiz-option {
-            cursor: pointer;
-            padding: 8px 16px;
-            margin: 5px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        .quiz-option:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
         .completion-message {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: #4ecdc4;
             font-weight: bold;
-            margin-top: 20px;
+            margin-top: 10px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
         }
     </style>
 </head>
@@ -105,8 +104,6 @@
         <h1>Badminton Court Knowledge Quiz</h1>
         <div class="instructions">
             <p>Learn about badminton court lines and service areas! Click on different game modes to start.</p>
-            <p><strong>Learn Mode:</strong> Explore the court and learn about each area</p>
-            <p><strong>Quiz Mode:</strong> Test your knowledge by answering questions</p>
         </div>
         
         <div class="score-display">Score: <span id="score">0</span></div>
@@ -114,7 +111,7 @@
         
         <div id="game-container"></div>
         
-        <div>
+        <div class="controls">
             <button id="learn-btn" class="btn mode-btn">Learn Mode</button>
             <button id="quiz-btn" class="btn">Quiz Mode</button>
             <button id="reset-btn" class="btn">Reset Game</button>
@@ -134,7 +131,7 @@
         const config = {
             type: Phaser.AUTO,
             width: 800,
-            height: 500,
+            height: 400,
             parent: 'game-container',
             backgroundColor: '#2c3e50',
             scene: {
@@ -158,13 +155,13 @@
 
         // Badminton court data
         const courtAreas = [
-            { name: "Right Service Court", x: 575, y: 150, width: 80, height: 120, color: 0xff6b6b, description: "Area for serving in singles and doubles. Service must land here when serving to the right side." },
-            { name: "Left Service Court", x: 575, y: 300, width: 80, height: 120, color: 0x4ecdc4, description: "Area for serving in singles and doubles. Service must land here when serving to the left side." },
-            { name: "Back Boundary Line", x: 400, y: 50, width: 500, height: 5, color: 0xffffff, description: "The back boundary line at the end of the court. Shots landing beyond this line are out." },
-            { name: "Short Service Line", x: 400, y: 200, width: 500, height: 5, color: 0xffff00, description: "The line beyond which a serve must land. Serves that land before this line are faults." },
-            { name: "Center Line", x: 400, y: 125, width: 5, height: 350, color: 0xffffff, description: "Divides the court into left and right service courts. Service must be delivered to the opposite court." },
-            { name: "Doubles Sideline", x: 650, y: 225, width: 5, height: 350, color: 0xffffff, description: "The outer boundary for doubles matches. Shots landing outside this line are out in doubles." },
-            { name: "Singles Sideline", x: 550, y: 225, width: 5, height: 350, color: 0xffffff, description: "The inner boundary for singles matches. Shots landing outside this line are out in singles." }
+            { name: "Right Service Court", x: 575, y: 100, width: 70, height: 100, color: 0xff6b6b, description: "Area for serving in singles and doubles. Service must land here when serving to the right side." },
+            { name: "Left Service Court", x: 575, y: 250, width: 70, height: 100, color: 0x4ecdc4, description: "Area for serving in singles and doubles. Service must land here when serving to the left side." },
+            { name: "Back Boundary Line", x: 400, y: 30, width: 450, height: 5, color: 0xffffff, description: "The back boundary line at the end of the court. Shots landing beyond this line are out." },
+            { name: "Short Service Line", x: 400, y: 150, width: 450, height: 5, color: 0xffff00, description: "The line beyond which a serve must land. Serves that land before this line are faults." },
+            { name: "Center Line", x: 400, y: 100, width: 5, height: 300, color: 0xffffff, description: "Divides the court into left and right service courts. Service must be delivered to the opposite court." },
+            { name: "Doubles Sideline", x: 650, y: 200, width: 5, height: 300, color: 0xffffff, description: "The outer boundary for doubles matches. Shots landing outside this line are out in doubles." },
+            { name: "Singles Sideline", x: 550, y: 200, width: 5, height: 300, color: 0xffffff, description: "The inner boundary for singles matches. Shots landing outside this line are out in singles." }
         ];
 
         // Quiz questions
@@ -213,8 +210,8 @@
             drawCourt();
             
             // Create info text
-            infoText = this.add.text(50, 400, "Select a mode to begin! Click on court areas to learn about them.", {
-                font: "18px Arial",
+            infoText = this.add.text(50, 330, "Select a mode to begin! Click on court areas to learn about them.", {
+                font: "14px Arial",
                 fill: "#ffffff",
                 wordWrap: { width: 700 }
             });
@@ -246,13 +243,13 @@
             
             // Draw court outline
             courtGraphics.lineStyle(4, 0xffffff, 1);
-            courtGraphics.strokeRect(300, 50, 500, 400);
+            courtGraphics.strokeRect(300, 30, 450, 350);
             
             // Draw net
             courtGraphics.lineStyle(3, 0xffffff, 1);
             courtGraphics.beginPath();
-            courtGraphics.moveTo(300, 250);
-            courtGraphics.lineTo(800, 250);
+            courtGraphics.moveTo(300, 200);
+            courtGraphics.lineTo(750, 200);
             courtGraphics.strokePath();
             
             // Draw court areas
@@ -296,7 +293,7 @@
                     const labelY = area.y + area.height/2;
                     
                     game.scene.scenes[0].add.text(labelX, labelY, area.name.split(' ')[0], {
-                        font: "12px Arial",
+                        font: "10px Arial",
                         fill: "#ffffff",
                         align: "center"
                     }).setOrigin(0.5);
@@ -304,8 +301,8 @@
             });
             
             // Add net label
-            game.scene.scenes[0].add.text(550, 240, "NET", {
-                font: "16px Arial",
+            game.scene.scenes[0].add.text(525, 190, "NET", {
+                font: "14px Arial",
                 fill: "#ffffff"
             }).setOrigin(0.5);
         }
@@ -355,18 +352,18 @@
             correctAnswer = questionData.answer;
             
             // Display question
-            quizQuestion = scene.add.text(400, 380, questionData.question, {
-                font: "20px Arial",
+            quizQuestion = scene.add.text(400, 330, questionData.question, {
+                font: "16px Arial",
                 fill: "#ffffff",
                 align: "center",
                 wordWrap: { width: 750 }
             }).setOrigin(0.5);
             
             // Display options
-            const optionsY = [410, 430, 450, 470];
+            const optionsY = [350, 365, 380, 395];
             questionData.options.forEach((option, index) => {
                 const optionText = scene.add.text(400, optionsY[index], `${index + 1}. ${option}`, {
-                    font: "18px Arial",
+                    font: "14px Arial",
                     fill: "#ffff00",
                     align: "center"
                 }).setOrigin(0.5).setInteractive();
