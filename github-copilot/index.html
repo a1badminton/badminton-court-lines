@@ -276,17 +276,22 @@ function createInteractiveLine(scene, line) {
   const x1 = toPx(line.coords[0]), y1 = toPx(line.coords[1]);
   const x2 = toPx(line.coords[2]), y2 = toPx(line.coords[3]);
   const obj = scene.add.line(0, 0, x1, y1, x2, y2, color).setLineWidth(width, width).setOrigin(0);
+
   let hitArea;
   if (x1 === x2) {
+    // Vertical line
     hitArea = new Phaser.Geom.Rectangle(x1 - HIT_SIZE/2, Math.min(y1, y2), HIT_SIZE, Math.abs(y2-y1));
   } else if (y1 === y2) {
+    // Horizontal line
     hitArea = new Phaser.Geom.Rectangle(Math.min(x1, x2), y1 - HIT_SIZE/2, Math.abs(x2-x1), HIT_SIZE);
   } else {
+    // Diagonal lines (none in court): fallback to a thin rectangle along the line
+    // (You can even disable interactivity for diagonals if desired)
     hitArea = new Phaser.Geom.Rectangle(
-      Math.min(x1,x2) - HIT_SIZE/2, Math.min(y1,y2) - HIT_SIZE/2,
-      Math.abs(x2-x1) + HIT_SIZE, Math.abs(y2-y1) + HIT_SIZE
+      Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2-x1), Math.abs(y2-y1)
     );
   }
+
   obj.setInteractive({ useHandCursor: true, hitArea, hitAreaCallback: Phaser.Geom.Rectangle.Contains });
   obj.data = new Phaser.Data.DataManager(obj);
   obj.data.set('name', line.name);
