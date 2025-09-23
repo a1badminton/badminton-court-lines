@@ -276,22 +276,17 @@ function createInteractiveLine(scene, line) {
   const x1 = toPx(line.coords[0]), y1 = toPx(line.coords[1]);
   const x2 = toPx(line.coords[2]), y2 = toPx(line.coords[3]);
   const obj = scene.add.line(0, 0, x1, y1, x2, y2, color).setLineWidth(width, width).setOrigin(0);
-
   let hitArea;
   if (x1 === x2) {
-    // Vertical line
     hitArea = new Phaser.Geom.Rectangle(x1 - HIT_SIZE/2, Math.min(y1, y2), HIT_SIZE, Math.abs(y2-y1));
   } else if (y1 === y2) {
-    // Horizontal line
     hitArea = new Phaser.Geom.Rectangle(Math.min(x1, x2), y1 - HIT_SIZE/2, Math.abs(x2-x1), HIT_SIZE);
   } else {
-    // Diagonal lines (none in court): fallback to a thin rectangle along the line
-    // (You can even disable interactivity for diagonals if desired)
     hitArea = new Phaser.Geom.Rectangle(
-      Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2-x1), Math.abs(y2-y1)
+      Math.min(x1,x2) - HIT_SIZE/2, Math.min(y1,y2) - HIT_SIZE/2,
+      Math.abs(x2-x1) + HIT_SIZE, Math.abs(y2-y1) + HIT_SIZE
     );
   }
-
   obj.setInteractive({ useHandCursor: true, hitArea, hitAreaCallback: Phaser.Geom.Rectangle.Contains });
   obj.data = new Phaser.Data.DataManager(obj);
   obj.data.set('name', line.name);
@@ -301,6 +296,13 @@ function createInteractiveLine(scene, line) {
   return obj;
 }
 function createInteractiveRect(scene, area) {
+  // Shrink the hit area by a few pixels (e.g. 10 px) on each edge so lines remain clickable
+  const inset = 10 / COURT.scale; // 10 screen px, converted to court inches
+  const x = area.area.x + inset;
+  const y = area.area.y + inset;
+  const w = area.area.w - 2 * inset;
+  const h = area.area.h - 2 * inset;
+
   const obj = scene.add.rectangle(
     toPx(area.area.x + area.area.w/2),
     toPx(area.area.y + area.area.h/2),
@@ -308,7 +310,12 @@ function createInteractiveRect(scene, area) {
     Math.abs(toPx(area.area.h)),
     0xe3f2fd, 0.01
   );
-  obj.setInteractive({ useHandCursor: true });
+  // Interactive area is slightly inset so lines remain clickable
+  obj.setInteractive(new Phaser.Geom.Rectangle(
+    toPx(x), toPx(y),
+    Math.abs(toPx(w)), Math.abs(toPx(h))
+  ), Phaser.Geom.Rectangle.Contains);
+
   obj.data = new Phaser.Data.DataManager(obj);
   obj.data.set('name', area.name);
   obj.data.set('desc', area.desc);
