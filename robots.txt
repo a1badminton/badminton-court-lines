@@ -1,0 +1,5 @@
+User-agent: *
+# Don't crawl AI-generated content
+Disallow: /claude-ai
+Disallow: /deepseek
+Disallow: /github-copilot
